@@ -1,0 +1,172 @@
+#payment-overlay {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    display: flex;
+    justify-content: center;
+    z-index: 1000;
+}
+#payment-overlay .pay-panel {
+    width: 100%;
+    min-height: 200px;
+    max-width: 660px;
+    background-color: #FFF;
+    transition: 500ms;
+    transition-timing-function: ease-out;
+    position: relative;
+
+    -webkit-transform: translateY(-500px) scale(0.5, 0.5);
+            transform: translateY(-500px) scale(0.5, 0.5);
+
+    &.show {
+        -webkit-transform: translateY(0) scale(1, 1);
+                transform: translateY(0) scale(1, 1);
+    }
+
+    .content {
+        padding: 50px;
+
+        h4 {
+            color: #808080;
+            font-size: 17px;
+            font-weight: normal;
+        }
+        h2 {
+            margin-top: 5px;
+            font-size: 24px;
+            color: #404040;
+            font-weight: bold;
+        }
+    }
+
+    .close  {
+        display: block;
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        width: 30px;
+        height: 30px;
+        border-radius: 15px;
+        margin-left: -15px;
+        background-color: #FFF;
+        opacity: 1;
+
+        &:hover:before {
+            opacity: .8;
+            -webkit-transform:rotate(90deg);
+                    transform:rotate(90deg);
+        }
+        &:before {
+            content: '';
+            background-image:url("../../../../modules/forge-payment/assets/icons/ic_close_black.svg");
+            background-size: 100%;
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            opacity: 0.3;
+            transition: 300ms;
+            left: 50%;
+            margin-left: -10px;
+            top: 50%;
+            margin-top: -10px;
+        }
+    }
+}
+
+body.payment-panel-open {
+    header, footer, div.wrapped, > div:not(#payment-overlay) {
+        transition: 300ms;
+        -webkit-filter: blur(3px);
+        -moz-filter: blur(3px);
+        -o-filter: blur(3px);
+        -ms-filter: blur(3px);
+        filter: blur(3px);
+    }
+}
+.payment-panel-open {
+    .loading {
+        color: rgba(0, 0, 0, 0);
+
+        &.stopload {
+            &:before {
+                opacity: 0;
+            }
+        }
+
+        &:before {
+            transition: 300ms;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-top: -9px;
+            margin-left: -9px;
+            content: ' ';
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            border: 0.16rem solid rgba(0, 0, 0, 0.5);
+            border-top-color: white;
+            -webkit-animation: loadspin 0.5s infinite linear;
+                    animation: loadspin 0.5s infinite linear;
+        }
+    }
+}
+
+#payment-overlay .pay-panel .content .adapters,
+.adapters {
+    margin-top: 20px;
+    a.adapter {
+        display: block;
+        width: 100%;
+        border: 1px solid #f0f0f0;
+        padding: 15px 30px;
+        -webkit-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.05);
+        -moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.05);
+        box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.05);
+        transition: 300ms;
+        margin: 10px 0;
+
+        &:hover {
+            -webkit-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+            -moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+            border: 1px solid #eaeaea;
+        }
+        h4 {
+            float: left;
+            line-height: 20px;
+            color: #4c4c4c;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .image {
+            float: right;
+            img {
+                width: 50%;
+                float: right;
+            }
+        }
+    }
+}
+
+@-webkit-keyframes loadspin {
+  0% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+@keyframes loadspin {
+  0% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}

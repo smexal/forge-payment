@@ -1,0 +1,17 @@
+<h4>{$pretitle}</h4>
+<h2>{$title}</h2>
+<div class="adapters">
+{loop="adapters"}
+    <a class="adapter{if="$value.desc"} has-desc{/if} clearfix" href="#">
+        <h4>{$value.label}</h4>
+        {if="$value.desc"}
+        <small>{$value.desc}</small>
+        {/if}
+        {if="$value.image"}
+        <div class="image">
+            <img src="{$value.image}" />
+        </div>
+        {/if}
+    </a>
+{/loop}
+</div>
