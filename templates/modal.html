@@ -2,7 +2,7 @@
 <h2>{$title}</h2>
 <div class="adapters">
 {loop="adapters"}
-    <a class="adapter{if="$value.desc"} has-desc{/if} clearfix" href="#">
+    <a class="adapter{if="$value.desc"} has-desc{/if} clearfix" href="{$value.url}">
         <h4>{$value.label}</h4>
         {if="$value.desc"}
         <small>{$value.desc}</small>

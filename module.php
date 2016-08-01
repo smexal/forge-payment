@@ -16,6 +16,7 @@ class ForgePayment extends Module {
         App::instance()->tm->theme->addStyle(MOD_ROOT."forge-payment/assets/forge-payment.less");
 
         Loader::instance()->loadDirectory(MOD_ROOT."forge-payment/classes/");
+        Loader::instance()->loadDirectory(MOD_ROOT."forge-payment/views/");
 
         API::instance()->register('forge-payment', array($this, 'apiAdapter'));
 
@@ -23,7 +24,7 @@ class ForgePayment extends Module {
     }
 
     private function settings() {
-        if(! Auth::allowed("manage.settings")) {
+        if(! Auth::allowed("manage.settings", true)) {
             return;
         }
 
@@ -31,17 +32,31 @@ class ForgePayment extends Module {
 
         $this->settings->registerField(
             Fields::text(array(
-            'key' => 'forge-payment-paypal-client-id',
-            'label' => i('Paypal Client ID', 'forge-payment'),
+            'key' => 'forge-payment-paypal-api-username',
+            'label' => i('Paypal API Username', 'forge-payment'),
             'hint' => i('Check official Paypal Developer Page for more information: https://goo.gl/8BkN8I', 'forge-payment')
-        ), Settings::get('forge-payment-paypal-client-id')), 'forge-payment-paypal-client-id', 'left', 'forge-payment');
+        ), Settings::get('forge-payment-paypal-api-username')), 'forge-payment-paypal-api-username', 'left', 'forge-payment');
 
         $this->settings->registerField(
             Fields::text(array(
-            'key' => 'forge-payment-paypal-secret',
-            'label' => i('Paypal Secret', 'forge-payment'),
+            'key' => 'forge-payment-paypal-api-password',
+            'label' => i('Paypal API Password', 'forge-payment'),
             'hint' => ''
-        ), Settings::get('forge-payment-paypal-secret')), 'forge-payment-paypal-secret', 'left', 'forge-payment');
+        ), Settings::get('forge-payment-paypal-api-password')), 'forge-payment-paypal-api-password', 'left', 'forge-payment');
+
+        $this->settings->registerField(
+            Fields::text(array(
+            'key' => 'forge-payment-paypal-signature',
+            'label' => i('Paypal Signature', 'forge-payment'),
+            'hint' => ''
+        ), Settings::get('forge-payment-paypal-signature')), 'forge-payment-paypal-signature', 'left', 'forge-payment');
+
+        $this->settings->registerField(
+            Fields::checkbox(array(
+            'key' => 'forge-payment-paypal-sandbox-mode',
+            'label' => i('Use Sandbox Mode'),
+            'hint' => i('If this setting is enabled, paypal sandbox domain will be used.'),
+        ), Settings::get('forge-payment-paypal-sandbox-mode')), 'forge-payment-paypal-sandbox-mode', 'left', 'forge-payment');
     }
 
     public function apiAdapter($query) {
