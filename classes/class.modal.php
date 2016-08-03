@@ -2,22 +2,18 @@
 
 class PaymentModal {
     private static $instance = null;
-    private $data = null;
     private $item = null;
+    private $payment = null;
     public $adapters = array('ForgePaymentPaypal');
 
     public function params($data = array()) {
-        $this->data = $data;
-
-        if(array_key_exists('collectionItem', $this->data)) {
-            $this->item = new CollectionItem($this->data['collectionItem']);
-        }
+        $this->payment = new Payment($data);
     }
 
     public function render() {
         return App::instance()->render(MOD_ROOT."forge-payment/templates/", "modal", array(
-            'pretitle' => $this->data['title'],
-            'title' => Utils::formatAmount($this->getAmount()),
+            'pretitle' => $this->payment->data['title'],
+            'title' => Utils::formatAmount($this->payment->getAmount()),
             'adapters' => $this->displayPaymentAdapters()
         ));
     }
@@ -25,20 +21,10 @@ class PaymentModal {
     private function displayPaymentAdapters() {
         $daptis = array();
         foreach($this->adapters as $adapter) {
-            $adapter = new $adapter();
+            $adapter = new $adapter($this->payment->data);
             array_push($daptis, $adapter->infos());
         }
         return $daptis;
-    }
-
-    public function getAmount() {
-        if(is_null($this->item)) {
-            return 0;
-        }
-        if(! array_key_exists('priceField', $this->data)) {
-            return 0;
-        }
-        return $this->item->getMeta($this->data['priceField']);
     }
 
     public static function instance() {
