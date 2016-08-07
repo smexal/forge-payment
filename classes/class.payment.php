@@ -24,6 +24,16 @@ class Payment {
         }
     }
 
+    public static function success($condition) {
+        if(array_key_exists('token', $condition)) {
+            App::instance()->db->where('token', $condition['token']);
+            App::instance()->db->update('forge_payment_orders', array(
+                "status" => "success",
+                "order_confirmed" => App::instance()->db->now()
+            ));
+        }
+    }
+
     public function create($type, $token='') {
         $db = App::instance()->db;
         $data = array(
@@ -53,6 +63,13 @@ class Payment {
             return 0;
         }
         return $this->item->getMeta($this->data['priceField']);
+    }
+
+    public static function getPayments($user) {
+        $db = App::instance()->db;
+        $db->where('user', $user);
+        $db->where('status', 'success');
+        return $db->get('forge_payment_orders');
     }
 
 }
