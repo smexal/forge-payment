@@ -69,7 +69,11 @@ class Payment {
         $db = App::instance()->db;
         $db->where('user', $user);
         $db->where('status', 'success');
-        return $db->get('forge_payment_orders');
+        $orders = $db->get('forge_payment_orders');
+        for($index = 0; $index < count($orders); $index++) {
+            $orders[$index]['meta'] = json_decode(urldecode($orders[$index]['meta']));
+        }
+        return $orders;
     }
 
 }
