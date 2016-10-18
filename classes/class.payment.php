@@ -76,6 +76,34 @@ class Payment {
         return $orders;
     }
 
+    public static function button($args) {
+        if(!array_key_exists('success', $args)) {
+            $args['success'] = Utils::getCurrentUrl();
+        }
+        if(!array_key_exists('cancel', $args)) {
+            $args['cancel'] = Utils::getCurrentUrl();
+        }
+        if(!array_key_exists('priceField', $args)) {
+            $args['priceField'] = "price";
+        }
+        if(!array_key_exists('title', $args)) {
+            $args['title'] = i('Payment', 'forge-payment');
+        }
+        if(!array_key_exists('label', $args)) {
+            $args['label'] = '';
+        }
+
+        return '<a href="#" class="btn btn-discreet payment-trigger" 
+                    data-redirect-success="'.$args['success'].'"
+                    data-redirect-cancel="'.$args['cancel'].'"
+                    data-payment-meta="'.urlencode(json_encode(array(
+                        "items" => $args['items']
+                    ))).'"
+                    data-price-field="'.$args['priceField'].'"
+                    data-title="'.$args['title'].'"
+                    data-api="'.Utils::getHomeUrl()."api/".'">'.$args['label'].'</a>';
+    }
+
 }
 
 ?>

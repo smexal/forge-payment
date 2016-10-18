@@ -11,8 +11,8 @@ class ForgePaymentPaypal {
 
     public function infos() {
         return array(
-            'label' => i('Pay with Paypal'),
-            'desc' => false,
+            'label' => i('Pay with Paypal', 'forge-payment'),
+            'desc' => i('You will be redirected to the paypal payment terminal.', 'forge-payment'),
             'image' => WWW_ROOT.'modules/forge-payment/assets/images/paypal-logo.png',
             'url' => Utils::getUrl(array("pay", "paypal"), true, $this->getParameters())
         );
