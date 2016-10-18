@@ -2,14 +2,6 @@ var forgePayment = {
     running : false,
 
     init : function() {
-        /*$(document).on("click", function(e) {
-            if($("body").hasClass("payment-panel-open") && ! forgePayment.running) {
-                if(! $(e.toElement).hasClass("pay-panel")) {
-                    forgePayment.hideOverlay();
-                }
-            }
-        });*/
-
 
         $(".payment-trigger").each(function() {
             $(this).on("click", function() {

@@ -4,7 +4,7 @@ class PaymentModal {
     private static $instance = null;
     private $item = null;
     private $payment = null;
-    public $adapters = array('ForgePaymentPaypal');
+    public $adapters = array('ForgePaymentPaypal', 'ForgePaymentTransaction');
 
     public function params($data = array()) {
         $this->payment = new Payment($data);

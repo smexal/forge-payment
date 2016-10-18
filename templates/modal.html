@@ -3,10 +3,12 @@
 <div class="adapters">
 {loop="adapters"}
     <a class="adapter{if="$value.desc"} has-desc{/if} clearfix" href="{$value.url}">
-        <h4>{$value.label}</h4>
-        {if="$value.desc"}
-        <small>{$value.desc}</small>
-        {/if}
+        <div>
+            <h4>{$value.label}</h4>
+            {if="$value.desc"}
+            <small>{$value.desc}</small>
+            {/if}
+        </div>
         {if="$value.image"}
         <div class="image">
             <img src="{$value.image}" />
