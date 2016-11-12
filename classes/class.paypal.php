@@ -1,12 +1,10 @@
 <?php
 class ForgePaymentPaypal {
-    private $data = null;
+    private $order = null;
     private $item = null;
 
-    public function __construct($data = null) {
-        if(!is_null($data)) {
-            $this->data = $data;
-        }
+    public function __construct($orderId) {
+        $this->order = Payment::getOrder($orderId);
     }
 
     public function infos() {
@@ -14,21 +12,11 @@ class ForgePaymentPaypal {
             'label' => i('Pay with Paypal', 'forge-payment'),
             'desc' => i('You will be redirected to the paypal payment terminal.', 'forge-payment'),
             'image' => WWW_ROOT.'modules/forge-payment/assets/images/paypal-logo.png',
-            'url' => Utils::getUrl(array("pay", "paypal"), true, $this->getParameters())
+            'url' => Utils::getUrl(array("pay", "paypal"), true, array('order' => $this->order->getId()))
         );
     }
 
-    public function getParameters() {
-        $params = array();
-        foreach($this->data as $key => $value) {
-            $params[$key] = urlencode($value);
-        }
-        return $params;
-    }
-
     public function paypalCheckout() {
-        $payment = new Payment($_GET, true);
-
         require_once(MOD_ROOT."forge-payment/externals/durani-paypal/DPayPal.php");
         $paypal = new DPayPal(
             Settings::get('forge-payment-paypal-api-username'), 
@@ -52,13 +40,13 @@ class ForgePaymentPaypal {
             "GIFTMESSAGEENABLE" => "0"
         );
         $item = array(
-            'PAYMENTREQUEST_0_AMT' => $payment->getAmount(),
+            'PAYMENTREQUEST_0_AMT' => $this->order->getTotalAmount(),
             'PAYMENTREQUEST_0_CURRENCYCODE' => 'CHF',
-            'PAYMENTREQUEST_0_ITEMAMT' => $payment->getAmount(),
-            'L_PAYMENTREQUEST_0_NAME0' => $payment->item->getMeta('title'),
-            'L_PAYMENTREQUEST_0_DESC0' => $payment->item->getMeta('description'),
-            'L_PAYMENTREQUEST_0_AMT0' => $payment->getAmount(),
-            'L_PAYMENTREQUEST_0_QTY0' => '1',
+            'PAYMENTREQUEST_0_ITEMAMT' => $this->order->getTotalAmount(),
+            //'L_PAYMENTREQUEST_0_NAME0' => $this->order->item->getMeta('title'),
+            //'L_PAYMENTREQUEST_0_DESC0' => $this->order->item->getMeta('description'),
+            //'L_PAYMENTREQUEST_0_AMT0' => $this->order->getAmount(),
+            //'L_PAYMENTREQUEST_0_QTY0' => '1',
             // "PAYMENTREQUEST_0_INVNUM" => $transaction->id - This field is useful if you want to send your internal transaction ID
         );
 
@@ -77,10 +65,7 @@ class ForgePaymentPaypal {
                 $sandbox = "sandbox.";
             }
 
-            $payment->create("paypal", $token);
-
-            $_SESSION['redirectCancel'] = $payment->data['redirectCancel'];
-            $_SESSION['redirectSuccess'] = $payment->data['redirectSuccess'];
+            $this->order->setType("paypal", $token);
 
             header('Location: https://www.'.$sandbox.'paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=' . urlencode($token));
         } else if (is_array($response) && $response['ACK'] == 'Failure') {

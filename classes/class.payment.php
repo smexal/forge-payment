@@ -1,17 +1,27 @@
 <?php
 
 class Payment {
-    public $item = null;
     public $data = null;
+    private $orderId = null;
 
-    public function __construct($data, $decode = false) {
-        $this->data = $data;
+    public static function getOrder($orderId) {
+        return new self(false, false, $orderId);
+    }
+
+    public function __construct($data = false, $decode = false, $id = false) {
+        if($data) {
+            $this->data = $data;
+        }
         if($decode) {
             $this->decodeData();
         }
-
-        if(array_key_exists('collectionItem', $this->data)) {
-            $this->item = new CollectionItem($this->data['collectionItem']);
+        if($id) {
+            $this->orderId = $id;
+            App::instance()->db->where('id', $this->orderId);
+            $order = App::instance()->db->getOne('forge_payment_orders');
+            $this->data = array();
+            $this->data['paymentMeta'] = $order['meta'];
+            $this->decodeData();
         }
     }
 
@@ -34,35 +44,73 @@ class Payment {
         }
     }
 
-    public function create($type, $token='') {
+    public function setType($type, $token = '') {
+        $db = App::instance()->db;
+        $db->where('id', $this->orderId);
+        $db->update('forge_payment_orders', array(
+            "token" => $token,
+            "payment_type" => $type,
+            "status" => "open"
+        ));
+    }
+
+
+    public function create($type = '', $token='') {
+        $_SESSION['redirectCancel'] = $this->data['redirectCancel'];
+        $_SESSION['redirectSuccess'] = $this->data['redirectSuccess'];
+
         $db = App::instance()->db;
         $data = array(
             "user" => App::instance()->user->get('id'),
-            "collection_item" => $this->data['collectionItem'],
-            "price" => $this->getAmount(),
+            "price" => $this->getTotalAmount(),
             "token" => $token,
             "payment_type" => $type
         );
         if(array_key_exists("paymentMeta", $this->data)) {
-            $data['meta'] = $this->data['paymentMeta'];
+            $data['meta'] = urlencode(json_encode($this->data['paymentMeta']));
         }
-        $db->insert("forge_payment_orders", $data);
+        $this->orderId = $db->insert("forge_payment_orders", $data);
+        return $this->orderId;
     }
 
     private function decodeData() {
-        foreach($this->data as $key => $value) {
-            $this->data[$key] = urldecode($value);
+        if(is_array($this->data)) {
+            foreach($this->data as $key => $value) {
+                if(is_string($value)) {
+                    $value = urldecode($value);
+                }
+                if($key == 'paymentMeta' && ! is_object($value)) {
+                    $value = json_decode($value);
+                }
+                $this->data[$key] = $value;
+            }
+        } else {
+            $this->data['paymentMeta'] = urldecode($this->data['paymentMeta']);
         }
     }
 
-    public function getAmount() {
-        if(is_null($this->item)) {
-            return 0;
+    public function getId() {
+        return $this->orderId;
+    }
+
+    public function getTotalAmount() {
+        $total = 0;
+        $this->decodeData();
+
+        foreach($this->data['paymentMeta']->{'items'} as $item) {
+            $col = new CollectionItem($item->collection);
+            $itemPrice = $col->getMeta('price');
+            $total += $itemPrice * $item->amount;
         }
-        if(! array_key_exists('priceField', $this->data)) {
-            return 0;
+        return $total;
+    }
+
+    public function getItemAmount() {
+        $amt = 0;
+        foreach($this->data['paymentMeta']->{'items'} as $item) {
+            $amt += $item->amount;
         }
-        return $this->item->getMeta($this->data['priceField']);
+        return $amt;
     }
 
     public static function getPayments($user) {
@@ -99,7 +147,6 @@ class Payment {
                     data-payment-meta="'.urlencode(json_encode(array(
                         "items" => $args['items']
                     ))).'"
-                    data-price-field="'.$args['priceField'].'"
                     data-title="'.$args['title'].'"
                     data-api="'.Utils::getHomeUrl()."api/".'">'.$args['label'].'</a>';
     }

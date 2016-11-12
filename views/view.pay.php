@@ -29,7 +29,7 @@ class ForgePayView extends AbstractView {
                 }
                 return $parts[1];
             } else {
-                $fpp = new ForgePaymentPaypal();
+                $fpp = new ForgePaymentPaypal($_GET['order']);
                 $fpp->paypalCheckout();
             }
         }
