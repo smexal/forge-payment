@@ -8,6 +8,21 @@ class Payment {
         return new self(false, false, $orderId);
     }
 
+    public static function getOrders($collectionItem) {
+        $db = App::instance()->db;
+        $returnOrders = [];
+        $orders = $db->get("forge_payment_orders");
+        foreach($orders as $o) {
+            $order = Payment::getOrder($o['id']);
+            foreach($order->data['paymentMeta']->{'items'} as $item) {
+                if($item->collection == $collectionItem) {
+                    $returnOrders[] = $order;
+                }
+            }
+        }
+        return $returnOrders;
+    }
+
     public function __construct($data = false, $decode = false, $id = false) {
         if($data) {
             $this->data = $data;
@@ -20,6 +35,7 @@ class Payment {
             App::instance()->db->where('id', $this->orderId);
             $order = App::instance()->db->getOne('forge_payment_orders');
             $this->data = array();
+            $this->data = $order;
             $this->data['paymentMeta'] = $order['meta'];
             $this->decodeData();
         }
@@ -103,6 +119,10 @@ class Payment {
             $total += $itemPrice * $item->amount;
         }
         return $total;
+    }
+
+    public function getDate() {
+        return $this->data['order_date'];
     }
 
     public function getItemAmount() {
