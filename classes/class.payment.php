@@ -8,16 +8,26 @@ class Payment {
         return new self(false, false, $orderId);
     }
 
+    public static function deleteOrder($id) {
+        App::instance()->db->where("id", $id);
+        App::instance()->db->delete('forge_payment_orders');
+    }
+
     public static function getOrders($collectionItem) {
         $db = App::instance()->db;
         $returnOrders = [];
+        $db->orderBy("order_date","desc");
         $orders = $db->get("forge_payment_orders");
         foreach($orders as $o) {
             $order = Payment::getOrder($o['id']);
+            $add = false;
             foreach($order->data['paymentMeta']->{'items'} as $item) {
                 if($item->collection == $collectionItem) {
-                    $returnOrders[] = $order;
+                    $add = true;
                 }
+            }
+            if($add) {
+                $returnOrders[] = $order;
             }
         }
         return $returnOrders;
@@ -58,6 +68,14 @@ class Payment {
                 "order_confirmed" => App::instance()->db->now()
             ));
         }
+    }
+
+    public static function acceptOrder($order) {
+        App::instance()->db->where('id', $order);
+        App::instance()->db->update('forge_payment_orders', array(
+            "status" => "success",
+            "order_confirmed" => App::instance()->db->now()
+        ));
     }
 
     public function setType($type, $token = '') {
