@@ -1,14 +1,15 @@
 <?
 
 class ForgePayment extends Module {
+    public static $adapters = ['ForgePaymentPaypal', 'ForgePaymentTransaction'];
 
-  public function setup() {
+    public function setup() {
         $this->settings = Settings::instance();
         $this->id = "forge-payment";
         $this->name = i('Payments for Forge', 'forge-payment');
         $this->description = i('Payment Adapters for Forge.', 'forge-payment');
         $this->image = $this->url().'assets/images/module-image.png';
-  }
+    }
 
     public function start() {
         // frontend

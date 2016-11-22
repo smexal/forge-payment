@@ -4,7 +4,7 @@ class PaymentModal {
     private static $instance = null;
     private $item = null;
     private $payment = null;
-    public $adapters = array('ForgePaymentPaypal'/*, 'ForgePaymentTransaction'*/);
+    public $adapters = array();
 
     public function params($data = array()) {
         $this->payment = new Payment($data);
@@ -21,7 +21,7 @@ class PaymentModal {
 
     private function displayPaymentAdapters() {
         $daptis = array();
-        foreach($this->adapters as $adapter) {
+        foreach(ForgePayment::$adapters as $adapter) {
             $adapter = new $adapter($this->payment->getId());
             array_push($daptis, $adapter->infos());
         }
