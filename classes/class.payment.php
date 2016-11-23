@@ -81,6 +81,7 @@ class Payment {
     public function setType($type, $token = '') {
         $db = App::instance()->db;
         $db->where('id', $this->orderId);
+        $db->where('payment_type', '');
         $db->update('forge_payment_orders', array(
             "token" => $token,
             "payment_type" => $type,

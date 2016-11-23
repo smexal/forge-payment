@@ -31,6 +31,10 @@ class ForgePayment extends Module {
 
         Settings::addTab('forge-payment', i('Payment', 'forge-payment'));
 
+        /*
+         * PAYPAL
+         */
+
         $this->settings->registerField(
             Fields::text(array(
             'key' => 'forge-payment-paypal-api-username',
@@ -58,6 +62,17 @@ class ForgePayment extends Module {
             'label' => i('Use Sandbox Mode'),
             'hint' => i('If this setting is enabled, paypal sandbox domain will be used.'),
         ), Settings::get('forge-payment-paypal-sandbox-mode')), 'forge-payment-paypal-sandbox-mode', 'left', 'forge-payment');
+
+        /*
+         * TRANSACTION
+         */
+        $transMailKey = Localization::getCurrentLanguage().'_forge-payment-transaction-email';
+        $this->settings->registerField(
+            Fields::textarea(array(
+            'key' => $transMailKey,
+            'label' => i('Transaction E-Mail', 'forge-payment'),
+            'hint' => i('Use the following variables: {user} {total} {orderid}, which get replaced by actual values.', 'forge-payment')
+        ), Settings::get($transMailKey)), $transMailKey, 'right', 'forge-payment');
     }
 
     public function apiAdapter($query) {
