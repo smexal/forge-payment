@@ -76,6 +76,47 @@ class Payment {
             "status" => "success",
             "order_confirmed" => App::instance()->db->now()
         ));
+
+        $order = self::getOrder($order);
+
+        // send mail with payment information
+        $mail = new Mail();
+        $user = new User($order->data['user']);
+        $mail->recipient($user->get('email'));
+        $mail->subject(Settings::get('title_'.Localization::getCurrentLanguage()).' - '.
+            sprintf(i('Your order has been completed (%s)', 'forge-payment'), $_GET['order']));
+
+        $text = Settings::get(Localization::getCurrentLanguage().'_forge-payment-accepted-email');
+        $text = str_replace('{items}', $order->itemList('text'), $text);
+        $text = str_replace('{user}', $user->get('username'), $text);
+        $text = str_replace('{total}', Utils::formatAmount($order->data['price']), $text);
+        $text = str_replace('{orderid}', $_GET['order'], $text);
+
+        $mail->addMessage($text);
+        $mail->send();
+    }
+
+    private function itemList($type = 'html') {
+        $list = '';
+        if($type == 'html') {
+            $list.='<ul>';
+        }
+        foreach($this->data['paymentMeta']->{'items'} as $item) {
+            $col = new CollectionItem($item->collection);
+            $itemPrice = $col->getMeta('price');
+            $total = $itemPrice * $item->amount;
+            if($type=='html') {
+                $list.= '<li>';
+            }
+            $list.= $item->amount.'x '.$col->getMeta('title').' ('.Utils::formatAmount($total).')';
+            if($type=='html') {
+                $list.= '</li>';
+            }
+        }
+        if($type == 'html') {
+            $list.='</ul>';
+        }
+        return $list;
     }
 
     public function setType($type, $token = '') {

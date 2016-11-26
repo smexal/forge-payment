@@ -6,12 +6,20 @@ class ForgePayment extends Module {
     public function setup() {
         $this->settings = Settings::instance();
         $this->id = "forge-payment";
-        $this->name = i('Payments for Forge', 'forge-payment');
+        $this->name = i('Payments', 'forge-payment');
         $this->description = i('Payment Adapters for Forge.', 'forge-payment');
         $this->image = $this->url().'assets/images/module-image.png';
     }
 
     public function start() {
+        $this->settingsViews = [
+            [
+                'callable' => 'viewOrders',
+                'title' => i("Orders", 'forge-payment'),
+                'url' => 'orders'
+            ]
+        ];
+
         // frontend
         App::instance()->tm->theme->addScript($this->url()."assets/forge-payment.js", true);
         App::instance()->tm->theme->addStyle(MOD_ROOT."forge-payment/assets/forge-payment.less");
@@ -24,12 +32,20 @@ class ForgePayment extends Module {
         $this->settings();
     }
 
+    public function viewOrders() {
+        return 'show orders...';
+    }
+
+    /*
+    public function viewOrdersActions() {
+        return 'actions...';
+    }
+    */
+
     private function settings() {
         if(! Auth::allowed("manage.settings", true)) {
             return;
         }
-
-        Settings::addTab('forge-payment', i('Payment', 'forge-payment'));
 
         /*
          * PAYPAL
@@ -72,6 +88,17 @@ class ForgePayment extends Module {
             'key' => $transMailKey,
             'label' => i('Transaction E-Mail', 'forge-payment'),
             'hint' => i('Use the following variables: {user} {total} {orderid}, which get replaced by actual values.', 'forge-payment')
+        ), Settings::get($transMailKey)), $transMailKey, 'right', 'forge-payment');
+
+        /*
+         * ORDER ACCEPTED
+         */
+        $transMailKey = Localization::getCurrentLanguage().'_forge-payment-accepted-email';
+        $this->settings->registerField(
+            Fields::textarea(array(
+            'key' => $transMailKey,
+            'label' => i('Transaction E-Mail', 'forge-payment'),
+            'hint' => i('Use the following variables: {user} {total} {orderid} {items}, which get replaced by actual values.', 'forge-payment')
         ), Settings::get($transMailKey)), $transMailKey, 'right', 'forge-payment');
     }
 
