@@ -13,7 +13,7 @@ class Payment {
         App::instance()->db->delete('forge_payment_orders');
     }
 
-    public static function getOrders($collectionItem) {
+    public static function getOrders($collectionItem = false) {
         $db = App::instance()->db;
         $returnOrders = [];
         $db->orderBy("order_date","desc");
@@ -22,7 +22,7 @@ class Payment {
             $order = Payment::getOrder($o['id']);
             $add = false;
             foreach($order->data['paymentMeta']->{'items'} as $item) {
-                if($item->collection == $collectionItem) {
+                if($item->collection == $collectionItem || $collectionItem == false) {
                     $add = true;
                 }
             }
@@ -70,6 +70,19 @@ class Payment {
         }
     }
 
+    public static function clearDrafts() {
+        if(! Auth::allowed("manage.forge-payment.orders.edit")) {
+            return;
+        }
+
+        $orders = Payment::getOrders();
+        foreach($orders as $order) {
+            if($order->data['status'] == 'draft') {
+                Payment::deleteOrder($order->data['id']);
+            }
+        }
+    }
+
     public static function acceptOrder($order) {
         App::instance()->db->where('id', $order);
         App::instance()->db->update('forge_payment_orders', array(
@@ -84,13 +97,13 @@ class Payment {
         $user = new User($order->data['user']);
         $mail->recipient($user->get('email'));
         $mail->subject(Settings::get('title_'.Localization::getCurrentLanguage()).' - '.
-            sprintf(i('Your order has been completed (%s)', 'forge-payment'), $_GET['order']));
+            sprintf(i('Your order has been completed (%s)', 'forge-payment'), $order->getId()));
 
         $text = Settings::get(Localization::getCurrentLanguage().'_forge-payment-accepted-email');
         $text = str_replace('{items}', $order->itemList('text'), $text);
         $text = str_replace('{user}', $user->get('username'), $text);
         $text = str_replace('{total}', Utils::formatAmount($order->data['price']), $text);
-        $text = str_replace('{orderid}', $_GET['order'], $text);
+        $text = str_replace('{orderid}', $order->getId(), $text);
 
         $mail->addMessage($text);
         $mail->send();

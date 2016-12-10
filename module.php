@@ -12,9 +12,11 @@ class ForgePayment extends Module {
     }
 
     public function start() {
+        Auth::registerPermissions("manage.forge-payment.orders.edit");
+
         $this->settingsViews = [
             [
-                'callable' => 'viewOrders',
+                'callable' => 'orders',
                 'title' => i("Orders", 'forge-payment'),
                 'url' => 'orders'
             ]
@@ -32,15 +34,40 @@ class ForgePayment extends Module {
         $this->settings();
     }
 
-    public function viewOrders() {
-        return 'show orders...';
+    public function orders() {
+        if(Auth::allowed("manage.forge-payment.orders.edit")) {
+            if(array_key_exists('accept-order', $_GET)) {
+                $orderTable = new OrderTable();
+                Payment::acceptOrder($_GET['accept-order']);
+            }
+            if(array_key_exists('delete-order', $_GET)) {
+                $orderTable = new OrderTable();
+                Payment::deleteOrder($_GET['delete-order']);
+            }
+            if(array_key_exists('clear-drafts', $_GET)) {
+                Payment::clearDrafts();
+            }
+        }
+
+        $orders = new OrderTable();
+        return $orders->draw();
     }
 
-    /*
-    public function viewOrdersActions() {
-        return 'actions...';
+    
+    public function ordersActions() {
+        if(! Auth::allowed("manage.forge-payment.orders.edit")) {
+            return;
+        }
+        $url = Utils::getUrl(
+            ['manage', 'module-settings', 'forge-payment', 'orders'],
+            true,
+            [
+                'clear-drafts' => "true"
+            ]
+        );
+        return '<a class="ajax btn btn-xs" href="'.$url.'">'.i('Clear drafts', 'forge-events').'</a>';
     }
-    */
+    
 
     private function settings() {
         if(! Auth::allowed("manage.settings", true)) {
