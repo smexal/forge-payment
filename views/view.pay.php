@@ -1,5 +1,10 @@
 <?php 
-class ForgePayView extends AbstractView {
+
+namespace Forge\Modules\ForgePayment;
+
+use Forge\Core\Abstracts as Abstracts;
+
+class ForgePayView extends Abstracts\View {
     public $name = 'pay';
 
     public function content($parts = array()) {

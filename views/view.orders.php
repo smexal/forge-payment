@@ -1,5 +1,10 @@
 <?php 
-class ForgeOrdersView extends AbstractView {
+
+namespace Forge\Modules\ForgePayment;
+
+use Forge\Core\Abstracts as Abstracts;
+
+class ForgeOrdersView extends Abstracts\View {
     public $name = 'orders';
     public $allowNavigation = true;
 

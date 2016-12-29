@@ -1,6 +1,10 @@
-<?
+<?php
 
-class ForgePayment extends Module {
+namespace Forge\Modules\ForgePayment;
+
+use \Forge\Core\Abstracts as Abstracts;
+
+class ForgePayment extends Abstracts\Module {
     public static $adapters = ['ForgePaymentPaypal', 'ForgePaymentTransaction'];
 
     public function setup() {
