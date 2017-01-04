@@ -1,4 +1,16 @@
 <?php
+
+namespace Forge\Modules\ForgePayment;
+
+use \Forge\Core\App\App;
+use \Forge\Core\Classes\Mail;
+use \Forge\Core\Classes\Localization;
+use \Forge\Core\Classes\Settings;
+use \Forge\Core\Classes\User;
+use \Forge\Core\Classes\Utils;
+
+use function \Forge\Core\Classes\i;
+
 class ForgePaymentTransaction {
     public static $id = 'transaction';
     private $orderId = null;
@@ -29,12 +41,12 @@ class ForgePaymentTransaction {
         $mail->addMessage($text);
         $mail->send();
 
-        App::instance()->addMessage(i('We just sent you an e-mail with more information.', 'forge-payment'), "success");
+        App\App::instance()->addMessage(i('We just sent you an e-mail with more information.', 'forge-payment'), "success");
         // redirect back to payment
         if(array_key_exists('redirectSuccess', $_SESSION)) {
-            App::instance()->redirect($_SESSION['redirectSuccess']);
+            App\App::instance()->redirect($_SESSION['redirectSuccess']);
         } else {
-            App::instance()->redirect(array());
+            App\App::instance()->redirect(array());
         }
     }
 

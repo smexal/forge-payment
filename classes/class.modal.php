@@ -1,5 +1,10 @@
 <?
 
+namespace Forge\Modules\ForgePayment;
+
+use \Forge\Core\App\App;
+use \Forge\Core\Classes\Utils;
+
 class PaymentModal {
     private static $instance = null;
     private $item = null;

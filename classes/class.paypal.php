@@ -1,4 +1,14 @@
 <?php
+
+namespace Forge\Modules\ForgePayment;
+
+use \Forge\Core\App\App;
+use \Forge\Core\Classes\Localization;
+use \Forge\Core\Classes\Settings;
+use \Forge\Core\Classes\Utils;
+
+use function \Forge\Core\Classes\i;
+
 class ForgePaymentPaypal {
     public static $id = 'paypal';
     private $order = null;
@@ -51,8 +61,8 @@ class ForgePaymentPaypal {
     public function paypalCheckout() {
         require_once(MOD_ROOT."forge-payment/externals/durani-paypal/DPayPal.php");
         $paypal = new DPayPal(
-            Settings::get('forge-payment-paypal-api-username'), 
-            Settings::get('forge-payment-paypal-api-password'), 
+            Settings::get('forge-payment-paypal-api-username'),
+            Settings::get('forge-payment-paypal-api-password'),
             Settings::get('forge-payment-paypal-signature'),
             Settings::get('forge-payment-paypal-sandbox-mode') === "on" ? true : false
         );
@@ -83,7 +93,7 @@ class ForgePaymentPaypal {
         );
 
          // Send request and wait for response
-         // Now we will call SetExpressCheckout API operation. 
+         // Now we will call SetExpressCheckout API operation.
 
         $response = $paypal->SetExpressCheckout($requestParams + $orderParams + $item);
 

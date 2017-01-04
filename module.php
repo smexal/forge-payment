@@ -2,9 +2,18 @@
 
 namespace Forge\Modules\ForgePayment;
 
-use \Forge\Core\Abstracts as Abstracts;
+use \Forge\Core\Abstracts\Module;
+use \Forge\Core\App\API;
+use \Forge\Core\App\App;
+use \Forge\Core\App\Auth;
+use \Forge\Core\Classes\Fields;
+use \Forge\Core\Classes\Settings;
+use \Forge\Core\Classes\Localization;
+use \Forge\Core\Classes\Utils;
 
-class ForgePayment extends Abstracts\Module {
+use function \Forge\Core\Classes\i;
+
+class ForgePayment extends Module {
     public static $adapters = ['ForgePaymentPaypal', 'ForgePaymentTransaction'];
 
     public function setup() {
@@ -30,8 +39,8 @@ class ForgePayment extends Abstracts\Module {
         App::instance()->tm->theme->addScript($this->url()."assets/forge-payment.js", true);
         App::instance()->tm->theme->addStyle(MOD_ROOT."forge-payment/assets/forge-payment.less");
 
-        Loader::instance()->loadDirectory(MOD_ROOT."forge-payment/classes/");
-        Loader::instance()->loadDirectory(MOD_ROOT."forge-payment/views/");
+        \Forge\Loader::instance()->loadDirectory(MOD_ROOT."forge-payment/classes/");
+        \Forge\Loader::instance()->loadDirectory(MOD_ROOT."forge-payment/views/");
 
         API::instance()->register('forge-payment', array($this, 'apiAdapter'));
 
@@ -39,16 +48,16 @@ class ForgePayment extends Abstracts\Module {
     }
 
     public function orders() {
-        if(Auth::allowed("manage.forge-payment.orders.edit")) {
-            if(array_key_exists('accept-order', $_GET)) {
+        if (Auth::allowed("manage.forge-payment.orders.edit")) {
+            if (array_key_exists('accept-order', $_GET)) {
                 $orderTable = new OrderTable();
                 Payment::acceptOrder($_GET['accept-order']);
             }
-            if(array_key_exists('delete-order', $_GET)) {
+            if (array_key_exists('delete-order', $_GET)) {
                 $orderTable = new OrderTable();
                 Payment::deleteOrder($_GET['delete-order']);
             }
-            if(array_key_exists('clear-drafts', $_GET)) {
+            if (array_key_exists('clear-drafts', $_GET)) {
                 Payment::clearDrafts();
             }
         }
@@ -57,9 +66,9 @@ class ForgePayment extends Abstracts\Module {
         return $orders->draw();
     }
 
-    
+
     public function ordersActions() {
-        if(! Auth::allowed("manage.forge-payment.orders.edit")) {
+        if (! Auth::allowed("manage.forge-payment.orders.edit")) {
             return;
         }
         $url = Utils::getUrl(
@@ -71,10 +80,10 @@ class ForgePayment extends Abstracts\Module {
         );
         return '<a class="ajax btn btn-xs" href="'.$url.'">'.i('Clear drafts', 'forge-events').'</a>';
     }
-    
+
 
     private function settings() {
-        if(! Auth::allowed("manage.settings", true)) {
+        if (! Auth::allowed("manage.settings", true)) {
             return;
         }
 
@@ -134,13 +143,11 @@ class ForgePayment extends Abstracts\Module {
     }
 
     public function apiAdapter($query) {
-
-        if($query == 'modal') {
+        if ($query == 'modal') {
             $modal = PaymentModal::instance();
             $modal->params($_POST);
             return json_encode(array("content" => $modal->render()));
         }
-
     }
 }
 

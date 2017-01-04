@@ -1,5 +1,18 @@
 <?php
 
+namespace Forge\Modules\ForgePayment;
+
+use \Forge\Core\App\App;
+use \Forge\Core\App\Auth;
+use \Forge\Core\Classes\Mail;
+use \Forge\Core\Classes\Localization;
+use \Forge\Core\Classes\Settings;
+use \Forge\Core\Classes\CollectionItem;
+use \Forge\Core\Classes\User;
+use \Forge\Core\Classes\Utils;
+
+use function \Forge\Core\Classes\i;
+
 class Payment {
     public $data = null;
     private $orderId = null;
@@ -234,7 +247,7 @@ class Payment {
             $args['label'] = '';
         }
 
-        return '<a href="#" class="btn btn-discreet payment-trigger" 
+        return '<a href="#" class="btn btn-discreet payment-trigger"
                     data-redirect-success="'.$args['success'].'"
                     data-redirect-cancel="'.$args['cancel'].'"
                     data-payment-meta="'.urlencode(json_encode(array(
