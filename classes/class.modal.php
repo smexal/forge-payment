@@ -4,6 +4,7 @@ namespace Forge\Modules\ForgePayment;
 
 use \Forge\Core\App\App;
 use \Forge\Core\Classes\Utils;
+use \Forge\Modules\ForgePayment\ForgePaymentPaypal;
 
 class PaymentModal {
     private static $instance = null;
