@@ -5,6 +5,7 @@ namespace Forge\Modules\ForgePayment;
 use \Forge\Core\App\App;
 use \Forge\Core\Classes\Utils;
 use \Forge\Modules\ForgePayment\ForgePaymentPaypal;
+use \Forge\Modules\ForgePayment\ForgePaymentTransaction;
 
 class PaymentModal {
     private static $instance = null;
@@ -28,6 +29,7 @@ class PaymentModal {
     private function displayPaymentAdapters() {
         $daptis = array();
         foreach(ForgePayment::$adapters as $adapter) {
+            $adapter = __NAMESPACE__ .'\\'. $adapter;
             $adapter = new $adapter($this->payment->getId());
             array_push($daptis, $adapter->infos());
         }
