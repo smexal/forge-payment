@@ -2,7 +2,7 @@
 
 namespace Forge\Modules\ForgePayment;
 
-use \Forge\Core\App\App;
+use \Forge\Core\App;
 use \Forge\Core\Classes\Mail;
 use \Forge\Core\Classes\Localization;
 use \Forge\Core\Classes\Settings;
