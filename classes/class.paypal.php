@@ -60,7 +60,7 @@ class ForgePaymentPaypal {
 
     public function paypalCheckout() {
         require_once(MOD_ROOT."forge-payment/externals/durani-paypal/DPayPal.php");
-        $paypal = new DPayPal(
+        $paypal = new \DPayPal(
             Settings::get('forge-payment-paypal-api-username'),
             Settings::get('forge-payment-paypal-api-password'),
             Settings::get('forge-payment-paypal-signature'),
