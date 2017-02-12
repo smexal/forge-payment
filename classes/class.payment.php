@@ -11,7 +11,7 @@ use \Forge\Core\Classes\CollectionItem;
 use \Forge\Core\Classes\User;
 use \Forge\Core\Classes\Utils;
 
-use function \Forge\Core\Classes\i;
+
 
 class Payment {
     public $data = null;

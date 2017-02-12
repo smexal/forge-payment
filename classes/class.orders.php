@@ -5,7 +5,7 @@ use \Forge\Core\App\App;
 use \Forge\Core\Classes\User;
 use \Forge\Core\Classes\Utils;
 
-use function \Forge\Core\Classes\i;
+
 
 class OrderTable {
     public $tableId = "orderTables";

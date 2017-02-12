@@ -4,7 +4,7 @@ namespace Forge\Modules\ForgePayment;
 
 use \Forge\Core\Abstracts\View;
 
-class ForgePayView extends View {
+class PayView extends View {
     public $name = 'pay';
 
     public function content($parts = array()) {

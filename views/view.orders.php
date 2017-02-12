@@ -5,9 +5,9 @@ namespace Forge\Modules\ForgePayment;
 use \Forge\Core\Abstracts\View;
 use \Forge\Core\App\App;
 
-use function \Forge\Core\Classes\i;
 
-class ForgeOrdersView extends View {
+
+class OrdersView extends View {
     public $name = 'orders';
     public $allowNavigation = true;
 

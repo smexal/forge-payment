@@ -11,7 +11,7 @@ use \Forge\Core\Classes\Settings;
 use \Forge\Core\Classes\Localization;
 use \Forge\Core\Classes\Utils;
 
-use function \Forge\Core\Classes\i;
+
 
 class ForgePayment extends Module {
     public static $adapters = ['ForgePaymentPaypal', 'ForgePaymentTransaction'];
@@ -38,9 +38,6 @@ class ForgePayment extends Module {
         // frontend
         App::instance()->tm->theme->addScript($this->url()."assets/forge-payment.js", true);
         App::instance()->tm->theme->addStyle(MOD_ROOT."forge-payment/assets/forge-payment.less");
-
-        \Forge\Loader::instance()->loadDirectory(MOD_ROOT."forge-payment/classes/");
-        \Forge\Loader::instance()->loadDirectory(MOD_ROOT."forge-payment/views/");
 
         API::instance()->register('forge-payment', array($this, 'apiAdapter'));
 
