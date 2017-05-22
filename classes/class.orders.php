@@ -1,4 +1,4 @@
-<?
+<?php
 namespace Forge\Modules\ForgePayment;
 
 use \Forge\Core\App\App;

@@ -75,7 +75,7 @@ class ForgePayment extends Module {
                 'clear-drafts' => "true"
             ]
         );
-        return '<a class="ajax btn btn-xs" href="'.$url.'">'.i('Clear drafts', 'forge-events').'</a>';
+        return '<a class="ajax btn btn-primary btn-xs" href="'.$url.'">'.i('Clear drafts', 'forge-events').'</a>';
     }
 
 
