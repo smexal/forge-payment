@@ -161,7 +161,6 @@ class Payment {
         $_SESSION['redirectCancel'] = $this->data['redirectCancel'];
         $_SESSION['redirectSuccess'] = $this->data['redirectSuccess'];
 
-        $db = App::instance()->db;
         $data = array(
             "user" => App::instance()->user->get('id'),
             "price" => $this->getTotalAmount(),
@@ -171,7 +170,7 @@ class Payment {
         if(array_key_exists("paymentMeta", $this->data)) {
             $data['meta'] = urlencode(json_encode($this->data['paymentMeta']));
         }
-        $this->orderId = $db->insert("forge_payment_orders", $data);
+        $this->orderId = App::instance()->db->insert("forge_payment_orders", $data);
         return $this->orderId;
     }
 

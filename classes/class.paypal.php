@@ -108,7 +108,6 @@ class ForgePaymentPaypal {
             }
 
             $this->order->setType("paypal", $token);
-
             header('Location: https://www.'.$sandbox.'paypal.com/cgi-bin/webscr?cmd=_express-checkout&token=' . urlencode($token));
         } else if (is_array($response) && $response['ACK'] == 'Failure') {
             var_dump($response);

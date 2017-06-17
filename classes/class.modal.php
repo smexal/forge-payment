@@ -22,8 +22,17 @@ class PaymentModal {
         return App::instance()->render(MOD_ROOT."forge-payment/templates/", "modal", array(
             'pretitle' => $this->payment->data['title'],
             'title' => Utils::formatAmount($this->payment->getTotalAmount()),
-            'adapters' => $this->displayPaymentAdapters()
+            'adapters' => $this->payment->getId() == 0 ? $this->errorAdapter() : $this->displayPaymentAdapters()
         ));
+    }
+
+    private function errorAdapter() {
+        return [[
+            'image' => false,
+            'label' => i('Error on Order Creation', 'forge-payment'),
+            'desc' => i('There was an error on creating the order.', 'forge-payment'),
+            'url' => '#'
+        ]];
     }
 
     private function displayPaymentAdapters() {

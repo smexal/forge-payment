@@ -96,7 +96,7 @@ class OrderTable {
         if($order->data['status'] != 'success') {
             array_push($actions['actions'], [
                 "url" => $acceptUrl,
-                "icon" => "ok",
+                "icon" => "check",
                 "name" => i('Accept order', 'forge-events'),
                 "ajax" => true,
                 "confirm" => false
@@ -105,7 +105,7 @@ class OrderTable {
 
         array_push($actions['actions'], [
             "url" => $deleteUrl,
-            "icon" => "trash",
+            "icon" => "delete_forever",
             "name" => i('Delete order', 'forge-events'),
             "ajax" => true,
             "confirm" => false
