@@ -10,6 +10,7 @@ use \Forge\Core\Classes\Settings;
 use \Forge\Core\Classes\CollectionItem;
 use \Forge\Core\Classes\User;
 use \Forge\Core\Classes\Utils;
+use \Forge\Core\Classes\Logger;
 
 
 
@@ -160,6 +161,7 @@ class Payment {
     public function create($type = '', $token='') {
         $_SESSION['redirectCancel'] = $this->data['redirectCancel'];
         $_SESSION['redirectSuccess'] = $this->data['redirectSuccess'];
+        Logger::debug($_SESSION['redirectSuccess']); 
 
         $data = array(
             "user" => App::instance()->user->get('id'),
