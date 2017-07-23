@@ -214,10 +214,15 @@ class Payment {
 
     public function getItemAmount() {
         $amt = 0;
+        $tip = '';
         foreach($this->data['paymentMeta']->{'items'} as $item) {
             $amt += $item->amount;
+            if(property_exists($item, 'user')) {
+                $u = new User($item->user);
+                $tip.= $u->get('username'). '<br />';
+            }
         }
-        return $amt;
+        return '<span title="'.$tip.'" class="tipster">'.$amt.'</span>';
     }
 
     public static function getPayments($user) {
