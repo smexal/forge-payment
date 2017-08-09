@@ -1,6 +1,7 @@
 <?php
 namespace Forge\Modules\ForgePayment;
 
+use \Forge\Core\App\ModifyHandler;
 use \Forge\Core\App\App;
 use \Forge\Core\Classes\User;
 use \Forge\Core\Classes\Utils;
@@ -9,24 +10,40 @@ use \Forge\Core\Classes\Utils;
 
 class OrderTable {
     public $tableId = "orderTables";
+    public $displayIds = true;
+    public $displayActions = true;
+    public $displayStatus = ['draft', 'open', 'success'];
+    public $filterByUser = false;
 
     public function __construct() {
     }
 
 
     public function draw() {
+        $ths = [];
+
+        if($this->displayIds) {
+            $ths[] = Utils::tableCell(i('id', 'forge-payment'));
+        }
+        $ths[] = Utils::tableCell(i('Order Date', 'forge-payment'));
+        if(! $this->filterByUser) {
+            $ths[] = Utils::tableCell(i('User', 'forge-payment'));
+        }
+        $ths[] = Utils::tableCell(i('Typ', 'forge-payment'));
+        $ths[] = Utils::tableCell(i('Status', 'forge-payment'));
+        $ths[] = Utils::tableCell(i('Total Amount', 'forge-payment'));
+        $ths[] = Utils::tableCell(i('Items', 'forge-payment'));
+        if($this->displayActions) {
+            $ths[] = Utils::tableCell(i('Actions'));
+        }
+        $ths = ModifyHandler::instance()->trigger(
+            'modify_order_table_th',
+            $ths
+        );
+
         return App::instance()->render(CORE_TEMPLATE_DIR."assets/", "table", array(
             'id' => $this->tableId,
-            'th' => array(
-                Utils::tableCell(i('id', 'forge-events')),
-                Utils::tableCell(i('Order Date', 'forge-events')),
-                Utils::tableCell(i('User', 'forge-events')),
-                Utils::tableCell(i('Typ', 'forge-events')),
-                Utils::tableCell(i('Status', 'forge-events')),
-                Utils::tableCell(i('Total Amount', 'forge-events')),
-                Utils::tableCell(i('Items', 'forge-events')),
-                Utils::tableCell(i('Actions'))
-            ),
+            'th' => $ths,
             'td' => $this->getOrderRows()
         ));
     }
@@ -46,16 +63,43 @@ class OrderTable {
         foreach($orders as $order) {
             $user = new User($order->data['user']);
 
-            array_push($ordersEnriched, array(
-                Utils::tableCell($order->data['id']),
-                Utils::tableCell(Utils::dateFormat($order->getDate(), true)),
-                Utils::tableCell($user->get('username')),
-                Utils::tableCell($order->data['payment_type']),
-                Utils::tableCell($order->data['status']),
-                Utils::tableCell(Utils::formatAmount($order->data['price'])),
-                Utils::tableCell($order->getItemAmount()),
-                Utils::tableCell($this->actions($order))
-            ));
+            $td = [];
+            if($this->displayIds) {
+                $td[] = Utils::tableCell($order->data['id']);
+            }
+            $td[] = Utils::tableCell(Utils::dateFormat($order->getDate(), true));
+            if(! $this->filterByUser) {
+                $td[] = Utils::tableCell($user->get('username'));
+            }
+            /*
+                i('transaction', 'forge-payment')
+                i('paypal', 'forge-payment')
+             */
+            $td[] = Utils::tableCell(i($order->data['payment_type'], 'forge-payment'));
+            /*
+                i('draft', 'forge-payment')
+                i('open', 'forge-payment')
+                i('success', 'forge-payment')
+             */
+            $td[] = Utils::tableCell(i($order->data['status'], 'forge-payment'));
+            $td[] = Utils::tableCell(Utils::formatAmount($order->data['price']));
+            $td[] = Utils::tableCell($order->getItemAmount());
+            if($this->displayActions) {
+                $td[] = Utils::tableCell($this->actions($order));
+            }
+
+            $td = ModifyHandler::instance()->trigger(
+                'modify_order_table_td',
+                $td,
+                ['order' => $order->data['id']]
+            );
+
+            if(in_array($order->data['status'], $this->displayStatus)) {
+                if(!$this->filterByUser || 
+                    ($this->filterByUser && $user->get('id') == $this->filterByUser)) {
+                    array_push($ordersEnriched, $td);
+                }
+            }
         }
         if(count($ordersEnriched) == 0) {
             array_push($ordersEnriched, [
@@ -97,7 +141,7 @@ class OrderTable {
             array_push($actions['actions'], [
                 "url" => $acceptUrl,
                 "icon" => "check",
-                "name" => i('Accept order', 'forge-events'),
+                "name" => i('Accept order', 'forge-payment'),
                 "ajax" => true,
                 "confirm" => false
             ]);
@@ -106,7 +150,7 @@ class OrderTable {
         array_push($actions['actions'], [
             "url" => $deleteUrl,
             "icon" => "delete_forever",
-            "name" => i('Delete order', 'forge-events'),
+            "name" => i('Delete order', 'forge-payment'),
             "ajax" => true,
             "confirm" => false
         ]);

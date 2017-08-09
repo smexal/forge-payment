@@ -196,7 +196,7 @@ class Payment {
         return $this->orderId;
     }
 
-    public function getTotalAmount() {
+    public function getTotalAmount($inCents = false) {
         $total = 0;
         $this->decodeData();
 
@@ -204,6 +204,9 @@ class Payment {
             $col = new CollectionItem($item->collection);
             $itemPrice = $col->getMeta('price');
             $total += $itemPrice * $item->amount;
+        }
+        if($inCents) {
+            return $total*100;
         }
         return $total;
     }

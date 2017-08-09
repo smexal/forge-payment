@@ -2,6 +2,9 @@
 <h2>{$title}</h2>
 <div class="adapters">
 {loop="adapters"}
+    {if="isset($value.raw)"}
+        {$value.raw}
+    {else}
     <a class="adapter{if="$value.desc"} has-desc{/if} clearfix" href="{$value.url}">
         <div>
             <h4>{$value.label}</h4>
@@ -15,5 +18,6 @@
         </div>
         {/if}
     </a>
+    {/if}
 {/loop}
 </div>

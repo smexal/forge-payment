@@ -1,7 +1,8 @@
-<?
+<?php
 
 namespace Forge\Modules\ForgePayment;
 
+use \Forge\Core\App\ModifyHandler;
 use \Forge\Core\App\App;
 use \Forge\Core\Classes\Utils;
 use \Forge\Modules\ForgePayment\ForgePaymentPaypal;
@@ -37,8 +38,11 @@ class PaymentModal {
 
     private function displayPaymentAdapters() {
         $daptis = array();
-        foreach(ForgePayment::$adapters as $adapter) {
-            $adapter = __NAMESPACE__ .'\\'. $adapter;
+        $theAdapters = ModifyHandler::instance()->trigger(
+            'modify_forge_payment_adapters',
+            ForgePayment::$adapters
+        );
+        foreach($theAdapters as $adapter) {
             $adapter = new $adapter($this->payment->getId());
             array_push($daptis, $adapter->infos());
         }

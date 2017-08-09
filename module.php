@@ -14,7 +14,10 @@ use \Forge\Core\Classes\Utils;
 
 
 class ForgePayment extends Module {
-    public static $adapters = ['ForgePaymentPaypal', 'ForgePaymentTransaction'];
+    public static $adapters = [
+        '\Forge\Modules\ForgePayment\ForgePaymentPaypal', 
+        '\Forge\Modules\ForgePayment\ForgePaymentTransaction'
+    ];
 
     public function setup() {
         $this->settings = Settings::instance();
@@ -65,7 +68,7 @@ class ForgePayment extends Module {
 
 
     public function ordersActions() {
-        if (! Auth::allowed("manage.forge-payment.orders.edit")) {
+        if (! Auth::allowed("manage.forge-payment.orders.edit", true)) {
             return;
         }
         $url = Utils::getUrl(
@@ -80,7 +83,7 @@ class ForgePayment extends Module {
 
 
     private function settings() {
-        if (! Auth::allowed("manage.settings", true)) {
+        if (! Auth::allowed("manage.forge-payment.orders.edit", true)) {
             return;
         }
 
