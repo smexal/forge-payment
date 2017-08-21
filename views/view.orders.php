@@ -17,7 +17,7 @@ class OrdersView extends View {
         $oTable = new OrderTable();
         $oTable->displayIds = false;
         $oTable->displayActions = false;
-        $oTable->displayStatus = ['open', 'success'];
+        $oTable->displayStatus = ['success'];
         $oTable->filterByUser = App::instance()->user->get('id');
 
         return App::instance()->render(MOD_ROOT."forge-payment/templates/", "orders", array(
