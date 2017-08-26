@@ -47,6 +47,10 @@ class Payment {
         return $returnOrders;
     }
 
+    public function getMeta() {
+        return $this->data['paymentMeta'];
+    }
+
     public function __construct($data = false, $decode = false, $id = false) {
         if($data) {
             $this->data = $data;

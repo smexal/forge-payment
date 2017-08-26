@@ -6,6 +6,7 @@ use \Forge\Core\App\App;
 use \Forge\Core\Classes\Localization;
 use \Forge\Core\Classes\Settings;
 use \Forge\Core\Classes\Utils;
+use \Forge\Core\Classes\CollectionItem;
 
 
 
@@ -81,16 +82,22 @@ class ForgePaymentPaypal {
             "GIFTRECEIPTENABLE" => "0",
             "GIFTMESSAGEENABLE" => "0"
         );
-        $item = array(
-            'PAYMENTREQUEST_0_AMT' => $this->order->getTotalAmount(),
-            'PAYMENTREQUEST_0_CURRENCYCODE' => 'CHF',
-            'PAYMENTREQUEST_0_ITEMAMT' => $this->order->getTotalAmount(),
-            //'L_PAYMENTREQUEST_0_NAME0' => $this->order->item->getMeta('title'),
-            //'L_PAYMENTREQUEST_0_DESC0' => $this->order->item->getMeta('description'),
-            //'L_PAYMENTREQUEST_0_AMT0' => $this->order->getAmount(),
-            //'L_PAYMENTREQUEST_0_QTY0' => '1',
-            // "PAYMENTREQUEST_0_INVNUM" => $transaction->id - This field is useful if you want to send your internal transaction ID
-        );
+
+        //var_dump($this->order);
+
+        $item['PAYMENTREQUEST_0_AMT'] = $this->order->getTotalAmount();
+        $item['PAYMENTREQUEST_0_CURRENCYCODE'] = 'CHF';
+        $item['PAYMENTREQUEST_0_INVNUM'] = $this->order->data['id'];
+
+        $itemNo = 0;
+        foreach($this->order->getMeta()->items as $orderItem) {
+            $colItem = new CollectionItem($orderItem->collection);
+            $item['L_PAYMENTREQUEST_0_NAME'.$itemNo] = $colItem->getMeta('title');
+            $item['L_PAYMENTREQUEST_0_DESC'.$itemNo] = $colItem->getMeta('description');
+            $item['L_PAYMENTREQUEST_0_AMT'.$itemNo] = $colItem->getMeta('price');
+            $item['L_PAYMENTREQUEST_0_QTY'.$itemNo] = $orderItem->amount;
+            $itemNo++;
+        }
 
          // Send request and wait for response
          // Now we will call SetExpressCheckout API operation.
