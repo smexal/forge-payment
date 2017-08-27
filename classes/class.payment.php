@@ -259,8 +259,11 @@ class Payment {
         if(!array_key_exists('label', $args)) {
             $args['label'] = '';
         }
+        if(!array_key_exists('class', $args)) {
+            $args['class'] = 'btn-discreet';
+        }
 
-        return '<a href="#" class="btn btn-discreet payment-trigger"
+        return '<a href="#" class="btn '.$args['class'].' payment-trigger"
                     data-redirect-success="'.$args['success'].'"
                     data-redirect-cancel="'.$args['cancel'].'"
                     data-payment-meta="'.urlencode(json_encode(array(
