@@ -221,15 +221,25 @@ class Payment {
 
     public function getItemAmount() {
         $amt = 0;
-        $tip = '';
+        $tips = '';
         foreach($this->data['paymentMeta']->{'items'} as $item) {
+            $tip = [];
             $amt += $item->amount;
+            if(property_exists($item, 'collection')) {
+                $col = new CollectionItem($item->collection);
+                $tip[] = $col->getName();
+            }
             if(property_exists($item, 'user')) {
                 $u = new User($item->user);
-                $tip.= $u->get('username'). '<br />';
+                $tip[] = $u->get('username');
             }
+            $tips.= implode(" / ", $tip).'<br />';
         }
-        return '<span title="'.$tip.'" class="tipster">'.$amt.'</span>';
+        // only one item... return tip text directly
+        if($amt == 1) {
+            return '<span>'.$tips.'</span>';
+        }
+        return '<span title="'.$tips.'" class="tipster">'.sprintf(i('%1$s items', 'forge-payment'), $amt).'</span>';
     }
 
     public static function getPayments($user) {
