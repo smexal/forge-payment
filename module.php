@@ -15,7 +15,7 @@ use \Forge\Core\Classes\Utils;
 
 class ForgePayment extends Module {
     public static $adapters = [
-        '\Forge\Modules\ForgePayment\ForgePaymentPaypal', 
+        //'\Forge\Modules\ForgePayment\ForgePaymentPaypal', 
         '\Forge\Modules\ForgePayment\ForgePaymentTransaction'
     ];
 
