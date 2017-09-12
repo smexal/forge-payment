@@ -1,11 +1,10 @@
 <?php
 namespace Forge\Modules\ForgePayment;
 
-use \Forge\Core\App\ModifyHandler;
-use \Forge\Core\App\App;
-use \Forge\Core\Classes\User;
-use \Forge\Core\Classes\Utils;
-
+use Forge\Core\App\App;
+use Forge\Core\App\ModifyHandler;
+use Forge\Core\Classes\User;
+use Forge\Core\Classes\Utils;
 
 
 class OrderTable {
@@ -59,8 +58,9 @@ class OrderTable {
 
     private function getOrderRows() {
         $orders = Payment::getOrders();
-        $ordersEnriched = array();
+        $ordersEnriched = [];
         foreach($orders as $order) {
+            $row = new \stdClass();
             $user = new User($order->data['user']);
 
             $td = [];
@@ -69,7 +69,7 @@ class OrderTable {
             }
             $td[] = Utils::tableCell(Utils::dateFormat($order->getDate(), true));
             if(! $this->filterByUser) {
-                $td[] = Utils::tableCell($user->get('username'));
+                $td[] = Utils::tableCell($user->get('username'), false, false, false);
             }
             /*
                 i('transaction', 'forge-payment')
@@ -94,10 +94,12 @@ class OrderTable {
                 ['order' => $order->data['id']]
             );
 
+            $row->tds = $td;
+
             if(in_array($order->data['status'], $this->displayStatus)) {
                 if(!$this->filterByUser || 
                     ($this->filterByUser && $user->get('id') == $this->filterByUser)) {
-                    array_push($ordersEnriched, $td);
+                    array_push($ordersEnriched, $row);
                 }
             }
         }
