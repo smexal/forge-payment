@@ -42,6 +42,8 @@ class ForgePaymentPaypal {
                 }
             }
             if($parts[1] == 'success') {
+                var_dump($parts);
+                exit;
                 if(array_key_exists('token', $_GET)) {
                     Payment::success(array("token" => $_GET['token']));
                     App::instance()->addMessage(i('Your payment has been confirmed.', 'forge-payment'), "success");
@@ -108,6 +110,7 @@ class ForgePaymentPaypal {
             //Now we have to redirect user to the PayPal
             //This is the point where user will be redirected to the PayPal page in order to provide Login details
             //After providing Login details, and after he confirms order in PayPal, user will be redirected to the page which you specified in RETURNURL field
+
             $token = $response['TOKEN'];
             $sandbox = '';
             if(Settings::get('forge-payment-paypal-sandbox-mode') === "on") {
