@@ -73,7 +73,6 @@ class OrderTable {
             }
             /*
                 i('transaction', 'forge-payment')
-                i('paypal', 'forge-payment')
              */
             $td[] = Utils::tableCell(i($order->data['payment_type'], 'forge-payment'));
             /*

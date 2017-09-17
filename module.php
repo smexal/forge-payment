@@ -15,7 +15,6 @@ use \Forge\Core\Classes\Utils;
 
 class ForgePayment extends Module {
     public static $adapters = [
-        //'\Forge\Modules\ForgePayment\ForgePaymentPaypal', 
         '\Forge\Modules\ForgePayment\ForgePaymentTransaction'
     ];
 
@@ -86,38 +85,6 @@ class ForgePayment extends Module {
         if (! Auth::allowed("manage.forge-payment.orders.edit", true)) {
             return;
         }
-
-        /*
-         * PAYPAL
-         */
-
-        $this->settings->registerField(
-            Fields::text(array(
-            'key' => 'forge-payment-paypal-api-username',
-            'label' => i('Paypal API Username', 'forge-payment'),
-            'hint' => i('Check official Paypal Developer Page for more information: https://goo.gl/8BkN8I', 'forge-payment')
-        ), Settings::get('forge-payment-paypal-api-username')), 'forge-payment-paypal-api-username', 'left', 'forge-payment');
-
-        $this->settings->registerField(
-            Fields::text(array(
-            'key' => 'forge-payment-paypal-api-password',
-            'label' => i('Paypal API Password', 'forge-payment'),
-            'hint' => ''
-        ), Settings::get('forge-payment-paypal-api-password')), 'forge-payment-paypal-api-password', 'left', 'forge-payment');
-
-        $this->settings->registerField(
-            Fields::text(array(
-            'key' => 'forge-payment-paypal-signature',
-            'label' => i('Paypal Signature', 'forge-payment'),
-            'hint' => ''
-        ), Settings::get('forge-payment-paypal-signature')), 'forge-payment-paypal-signature', 'left', 'forge-payment');
-
-        $this->settings->registerField(
-            Fields::checkbox(array(
-            'key' => 'forge-payment-paypal-sandbox-mode',
-            'label' => i('Use Sandbox Mode'),
-            'hint' => i('If this setting is enabled, paypal sandbox domain will be used.'),
-        ), Settings::get('forge-payment-paypal-sandbox-mode')), 'forge-payment-paypal-sandbox-mode', 'left', 'forge-payment');
 
         /*
          * TRANSACTION
