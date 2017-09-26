@@ -27,6 +27,7 @@ class ForgePayment extends Module {
     }
 
     public function start() {
+        Auth::registerPermissions("manage.forge-payment");
         Auth::registerPermissions("manage.forge-payment.orders.edit");
 
         $this->settingsViews = [
@@ -116,6 +117,9 @@ class ForgePayment extends Module {
             return json_encode(array("content" => $modal->render()));
         }
         if($data['query'][0] == 'orders') {
+            if( ! Auth::allowed('manage.forge-payment', true)) {
+                return '';
+            }
             $oTable = new OrderTable();
             return $oTable->handleQuery($data);
         }
