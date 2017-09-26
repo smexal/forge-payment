@@ -17,6 +17,7 @@ class OrdersView extends View {
         $oTable = new OrderTable();
         $oTable->displayIds = false;
         $oTable->displayActions = false;
+        $oTable->displayBar = false;
         $oTable->displayStatus = ['success'];
         $oTable->filterByUser = App::instance()->user->get('id');
 

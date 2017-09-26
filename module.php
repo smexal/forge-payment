@@ -109,11 +109,15 @@ class ForgePayment extends Module {
         ), Settings::get($transMailKey)), $transMailKey, 'right', 'forge-payment');
     }
 
-    public function apiAdapter($query) {
-        if ($query == 'modal') {
+    public function apiAdapter($data) {
+        if ($data == 'modal') {
             $modal = PaymentModal::instance();
             $modal->params($_POST);
             return json_encode(array("content" => $modal->render()));
+        }
+        if($data['query'][0] == 'orders') {
+            $oTable = new OrderTable();
+            return $oTable->handleQuery($data);
         }
     }
 }

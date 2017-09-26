@@ -5,16 +5,37 @@ use Forge\Core\App\App;
 use Forge\Core\App\ModifyHandler;
 use Forge\Core\Classes\User;
 use Forge\Core\Classes\Utils;
+use \Forge\Core\Classes\TableBar;
 
 
 class OrderTable {
     public $tableId = "orderTables";
     public $displayIds = true;
     public $displayActions = true;
+    public $displayBar = true;
     public $displayStatus = ['draft', 'open', 'success'];
     public $filterByUser = false;
 
+    private $statusFilter = false;
+    private $searchTerm = false;
+
     public function __construct() {
+    }
+
+    public function handleQuery($action) {
+        if(array_key_exists('t', $_GET)) {
+            $this->searchTerm = $_GET['t'];
+        }
+        if(array_key_exists('filter__payment_status', $_GET)) {
+            $this->statusFilter = $_GET['filter__payment_status'];
+        }
+        return json_encode([
+            'newTable' => App::instance()->render(
+                CORE_TEMPLATE_DIR.'assets/',
+                'table-rows',
+                ['td' => $this->getOrderRows()]
+            )
+        ]);
     }
 
 
@@ -40,7 +61,25 @@ class OrderTable {
             $ths
         );
 
-        return App::instance()->render(CORE_TEMPLATE_DIR."assets/", "table", array(
+        if($this->displayBar) {
+            $bar = new TableBar(Utils::url(['api', 'forge-payment', 'orders']), $this->tableId);
+            $bar->enableSearch();
+
+            $bar->addDirectFilter([
+                'label' => i('Status', 'forge-payment'),
+                'field' => 'payment_status',
+                'values' => [
+                    'draft' => i('Draft', 'forge-payment'),
+                    'open' => i('Open', 'forge-payment'),
+                    'success' => i('Success', 'forge-payment'),
+                ]
+            ]);
+            $bar = $bar->render();
+        } else {
+            $bar = '';
+        }
+
+        return $bar.App::instance()->render(CORE_TEMPLATE_DIR."assets/", "table", array(
             'id' => $this->tableId,
             'th' => $ths,
             'td' => $this->getOrderRows()
@@ -62,6 +101,28 @@ class OrderTable {
         foreach($orders as $order) {
             $row = new \stdClass();
             $user = new User($order->data['user']);
+
+            if($this->searchTerm) {
+                $found = false;
+                if(strstr($user->get('username'), $this->searchTerm)) {
+                    $found = true;
+                }
+                if(strstr($order->data['id'], $this->searchTerm)) {
+                    $found = true;
+                }
+                if(strstr($order->data['status'], $this->searchTerm)) {
+                    $found = true;
+                }
+
+                if(! $found) {
+                    continue;
+                }
+            }
+            if($this->statusFilter) {
+                if($order->data['status'] !== $this->statusFilter) {
+                    continue;
+                }
+            }
 
             $td = [];
             if($this->displayIds) {
