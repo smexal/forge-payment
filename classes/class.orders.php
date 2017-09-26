@@ -96,7 +96,7 @@ class OrderTable {
             $row->tds = $td;
 
             if(in_array($order->data['status'], $this->displayStatus)) {
-                if(!$this->filterByUser || 
+                if(!$this->filterByUser ||
                     ($this->filterByUser && $user->get('id') == $this->filterByUser)) {
                     array_push($ordersEnriched, $row);
                 }
