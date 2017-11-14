@@ -149,6 +149,8 @@ class ForgePayment extends Module {
               KEY `user` (`user`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8;'
         );
+
+        Settings::set($this->name . ".installed", 1);
     }
 }
 
