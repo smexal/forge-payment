@@ -30,6 +30,8 @@ class ForgePayment extends Module {
         Auth::registerPermissions("manage.forge-payment");
         Auth::registerPermissions("manage.forge-payment.orders.edit");
 
+        $this->install();
+
         $this->settingsViews = [
             [
                 'callable' => 'orders',
@@ -123,6 +125,30 @@ class ForgePayment extends Module {
             $oTable = new OrderTable();
             return $oTable->handleQuery($data);
         }
+    }
+
+    private function install() {
+        if (Settings::get($this->name . ".installed")) {
+            return;
+        }
+
+
+        App::instance()->db->rawQuery(
+            'CREATE TABLE IF NOT EXISTS `forge_payment_orders` (
+              `id` int(7) NOT NULL AUTO_INCREMENT,
+              `user` int(7) NOT NULL,
+              `collection_item` int(11) NOT NULL,
+              `price` float NOT NULL,
+              `token` varchar(150) NOT NULL,
+              `order_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              `order_confirmed` timestamp NOT NULL DEFAULT \'0000-00-00 00:00:00\',
+              `payment_type` varchar(250) NOT NULL,
+              `status` varchar(100) NOT NULL DEFAULT \'draft\',
+              `meta` text,
+              PRIMARY KEY (`id`),
+              KEY `user` (`user`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;'
+        );
     }
 }
 
