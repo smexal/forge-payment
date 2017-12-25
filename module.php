@@ -132,7 +132,6 @@ class ForgePayment extends Module {
             return;
         }
 
-
         App::instance()->db->rawQuery(
             'CREATE TABLE IF NOT EXISTS `forge_payment_orders` (
               `id` int(7) NOT NULL AUTO_INCREMENT,
@@ -141,7 +140,7 @@ class ForgePayment extends Module {
               `price` float NOT NULL,
               `token` varchar(150) NOT NULL,
               `order_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-              `order_confirmed` timestamp NOT NULL DEFAULT \'0000-00-00 00:00:00\',
+              `order_confirmed` timestamp NULL NULL,
               `payment_type` varchar(250) NOT NULL,
               `status` varchar(100) NOT NULL DEFAULT \'draft\',
               `meta` text,
