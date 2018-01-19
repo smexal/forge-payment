@@ -157,8 +157,16 @@ class OrderTable {
             $row->tds = $td;
 
             if(in_array($order->data['status'], $this->displayStatus)) {
+                $userOccurs = false;
+                if($this->filterByUser) {
+                    foreach($order->data['paymentMeta']->{'items'} as $item) {
+                        if($item->user == $this->filterByUser) {
+                            $userOccurs = true;
+                        }
+                    }
+                }
                 if(!$this->filterByUser ||
-                    ($this->filterByUser && $user->get('id') == $this->filterByUser)) {
+                    ($this->filterByUser && ($user->get('id') == $this->filterByUser || $userOccurs))) {
                     array_push($ordersEnriched, $row);
                 }
             }
