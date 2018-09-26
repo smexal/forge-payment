@@ -218,6 +218,13 @@ class Payment {
         return $this->data['order_date'];
     }
 
+    public static function getStatus($paymentId) {
+        $db = App::instance()->db;
+        $db->where('id', $paymentId);
+        $data = $db->getOne('forge_payment_orders');
+        return $data['status'];
+    }
+
     public function getItemAmount() {
         $amt = 0;
         $tips = '';

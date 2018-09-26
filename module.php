@@ -14,6 +14,8 @@ use \Forge\Core\Classes\Utils;
 
 
 class ForgePayment extends Module {
+    public $defaultSettingsView = 'orders';
+
     public static $adapters = [
         '\Forge\Modules\ForgePayment\ForgePaymentTransaction'
     ];

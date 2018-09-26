@@ -17,6 +17,7 @@ class OrderTable {
     public $filterByUser = false;
 
     private $statusFilter = false;
+    private $itemFilter = false;
     private $searchTerm = false;
 
     public function __construct() {
@@ -26,8 +27,12 @@ class OrderTable {
         if(array_key_exists('t', $_GET)) {
             $this->searchTerm = $_GET['t'];
         }
-        if(array_key_exists('filter__payment_status', $_GET)) {
+        if(array_key_exists('filter__payment_status', $_GET) && strlen($_GET['filter__payment_status']) > 0) {
             $this->statusFilter = $_GET['filter__payment_status'];
+        }
+        if(array_key_exists('filter__items', $_GET) && strlen($_GET['filter__items']) > 0) {
+            $this->itemFilter = explode(":", $_GET['filter__items']);
+            $this->itemFilter = $this->itemFilter[1];
         }
         return json_encode([
             'newTable' => App::instance()->render(
@@ -74,6 +79,25 @@ class OrderTable {
                     'success' => i('Success', 'forge-payment'),
                 ]
             ]);
+            $values = [];
+            $values = ModifyHandler::instance()->trigger(
+                'update_item_filter_order_table',
+                $values
+            );
+            /**
+             * [
+                    'item:11' => i('Butterlan 12', 'forge-payment'),
+                    'item:12' => i('Butterlan 13', 'forge-payment'),
+                    'item:13' => i('Butterlan 12S', 'forge-payment'),
+                ]
+             */
+            if(count($values) > 0) {
+                $bar->addDirectFilter([
+                    'label' => i('Items', 'forge-payment'),
+                    'field' => 'items',
+                    'values' => $values
+                ]);
+            }
             $bar = $bar->render();
         } else {
             $bar = '';
@@ -120,6 +144,17 @@ class OrderTable {
             }
             if($this->statusFilter) {
                 if($order->data['status'] !== $this->statusFilter) {
+                    continue;
+                }
+            }
+            if($this->itemFilter) {
+                $occurs = false;
+                foreach($order->data['paymentMeta']->items as $item) {
+                    if($item->collection == $this->itemFilter) {
+                        $occurs = true;
+                    }
+                }
+                if(! $occurs) {
                     continue;
                 }
             }
