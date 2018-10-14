@@ -167,7 +167,7 @@ class Payment {
         $_SESSION['redirectSuccess'] = $this->data['redirectSuccess'];
 
         $data = array(
-            "user" => App::instance()->user->get('id'),
+            "user" => Auth::any() ? App::instance()->user->get('id') : false,
             "price" => $this->getTotalAmount(),
             "token" => $token,
             "payment_type" => $type
@@ -278,14 +278,18 @@ class Payment {
         if(!array_key_exists('class', $args)) {
             $args['class'] = 'btn-discreet';
         }
+        if(!array_key_exists('delivery', $args)) {
+            $args['delivery'] = false;
+        }
 
         return '<a href="#" class="btn '.$args['class'].' payment-trigger"
                     data-redirect-success="'.$args['success'].'"
                     data-redirect-cancel="'.$args['cancel'].'"
-                    data-payment-meta="'.urlencode(json_encode(array(
-                        "items" => $args['items']
-                    ))).'"
+                    data-payment-meta="'.urlencode(
+                        json_encode(["items" => $args['items']])
+                    ).'"
                     data-title="'.$args['title'].'"
+                    data-delivery="'.$args['delivery'].'"
                     data-api="'.Utils::getHomeUrl()."api/".'">'.$args['label'].'</a>';
     }
 

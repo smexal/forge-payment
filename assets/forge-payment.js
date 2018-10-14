@@ -37,8 +37,12 @@ var forgePayment = {
             $("body").addClass("payment-panel-open");
         }
         $("body").find("#payment-overlay").remove();
+        var deliveryClass = '';
+        if(data.delivery == true) {
+            deliveryClass = 'delivery';
+        }
         var overlay = $(
-            "<div id='payment-overlay'><div class='pay-panel loading'>" +
+            "<div class="+deliveryClass+" id='payment-overlay'><div class='pay-panel loading'>" +
                 "<div class='content'></div>" +
                 "<div class='close'></div>" +
             "</div></div>"
@@ -63,6 +67,7 @@ var forgePayment = {
             setTimeout(function() {
                 modal.find(".content").html(data.content);
                 forgePayment.running = false;
+                $(document).trigger("ajaxReload");
             }, 300);
         });
     }
