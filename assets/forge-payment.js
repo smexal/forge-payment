@@ -16,9 +16,23 @@ var forgePayment = {
                 forgePayment.hideOverlay();
             }
         });
+
+        $("#payment-overlay.delivery").each(function() {
+            $(this).find("h4").unbind('click').on('click', function() {
+                $("#payment-overlay.delivery").find("h4").each(function() {
+                    $(this).removeClass("open");
+                    $(this).next().removeClass('show');
+                });
+                $(this).addClass("open");
+                $(this).next().addClass('show');
+            });
+        });
     },
 
     hideOverlay : function() {
+        if(! $("body").find("#payment-overlay .pay-panel").hasClass('show')) {
+            return;
+        }
         forgePayment.running = true;
         $("body").removeClass("payment-panel-open");
         $("body").find("#payment-overlay .pay-panel").removeClass("show");
@@ -32,6 +46,7 @@ var forgePayment = {
         if(forgePayment.running) {
             return;
         }
+        $(document).trigger("hideOverlays");
         forgePayment.running = true;
         if(!$("body").hasClass("payment-panel-open")) {
             $("body").addClass("payment-panel-open");
@@ -75,3 +90,4 @@ var forgePayment = {
 
 $(document).ready(forgePayment.init);
 $(document).on("ajaxReload", forgePayment.init);
+$(document).on("hideOverlays", forgePayment.hideOverlay);

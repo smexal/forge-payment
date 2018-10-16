@@ -2,19 +2,20 @@
 <h2>{$title}</h2>
 <form method="post">
     <div class="delivery-address">
-        <h4>{$del_addr.title}</h4>
+        <h4 class="tab-title">{$del_addr.title}</h4>
         <div class="form">
             {$del_addr.form}
         </div>
     </div>
     <div class="invoice-address">
-        <h4>{$inv_addr.title}</h4>
+        <h4 class="tab-title">{$inv_addr.title}</h4>
         <div class="form">
+            <p>{$inv_addr.info_text}</p>
             {$inv_addr.form}
         </div>
     </div>
     <div class="payment-method">
-        <h4>{$method.title}</h4>
+        <h4 class="tab-title">{$method.title}</h4>
         <div class="form">
         </div>
     </div>

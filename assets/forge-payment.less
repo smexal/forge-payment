@@ -7,12 +7,54 @@
     z-index: 1000;
 
     &.delivery {
+        * {
+            transition: 300ms;
+        }
         .pay-panel {
             max-width: 860px;
         }
         form {
-            label {
+            label, p {
                 color: #666;
+            }
+            h4 + div.form {
+                margin-bottom: 30px;
+            }
+        }
+
+        h4 {
+            margin: 0;
+            transition: 300ms;
+            &.tab-title {
+                background-color: #F0F0F0;
+                padding: 0 20px;
+            }
+
+            &.open {
+                border-bottom: 0;
+            }
+        }
+    }
+
+    .delivery-address, .invoice-address, .payment-method {
+        h4 {
+            cursor: pointer;
+            line-height: 40px;
+            border-bottom: 1px solid #F0F0F0;
+        }
+        .form  {
+            display: block;
+            transform-origin: top center;
+            height: 0;
+            opacity: 0;
+            transform: scale(1, 0);
+            transition: 300ms;
+
+            &.show {
+                display: block;
+                height: auto;
+                opacity: 1;
+                transform: scale(1, 1);
             }
         }
     }

@@ -40,6 +40,7 @@ class PaymentModal {
             'pretitle' => Utils::formatAmount($this->payment->getTotalAmount()),
             'title' => i('Checkout Process', 'forge-payment'),
             'inv_addr' => [
+                'info_text' => i('Leave empty, if same as delivery address.', 'forge-payment'),
                 'title' => i('Invoice Address', 'forge-payment'),
                 'form' => $this->getAddressForm('invoice')
             ],
