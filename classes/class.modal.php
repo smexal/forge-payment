@@ -38,20 +38,26 @@ class PaymentModal {
     private function renderDeliveryModal() {
         return App::instance()->render(MOD_ROOT."forge-payment/templates/", "modal-delivery", array(
             'pretitle' => Utils::formatAmount($this->payment->getTotalAmount()),
-            'title' => i('Checkout Process', 'forge-payment'),
-            'inv_addr' => [
-                'info_text' => i('Leave empty, if same as delivery address.', 'forge-payment'),
-                'title' => i('Invoice Address', 'forge-payment'),
-                'form' => $this->getAddressForm('invoice')
+            'title' => i('Checkout', 'forge-payment'),
+            'address' => [
+                'title' => i('1. Address', 'forge-payment'),
+                'form' => $this->getAddressForm('address'),
+                'action' => $this->getDeliveryActions()
             ],
-            'del_addr' => [
-                'title' => i('Delivery Address', 'forge-payment'),
-                'form' => $this->getAddressForm('delivery')
+            'delivery' => [
+                'title' => i('2. Delivery', 'forge-payment'),
             ],
-            'method' => [
-                'title' => i('Payment Method', 'forge-payment'),
+            'payment' => [
+                'title' => i('3. Payment', 'forge-payment'),
             ]
         ));
+    }
+
+    private function getDeliveryActions() {
+        $actions = '<div class="actions">';
+        $actions.= Fields::button(i('Continue', 'forge-payment'));
+        $actions.= '</div>';
+        return $actions;
     }
 
     private function getAddressForm($prefix='') {
@@ -83,6 +89,10 @@ class PaymentModal {
         $form.= Fields::text([
             'key' => $prefix.'_country',
             'label' => i('Country', 'core'),
+        ], '');
+        $form.= Fields::text([
+            'key' => $prefix.'_email',
+            'label' => i('E-Mail Address', 'core'),
         ], '');
         return $form;
     }

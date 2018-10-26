@@ -1,22 +1,11 @@
 <h4>{$pretitle}</h4>
 <h2>{$title}</h2>
-<form method="post">
-    <div class="delivery-address">
-        <h4 class="tab-title">{$del_addr.title}</h4>
-        <div class="form">
-            {$del_addr.form}
-        </div>
-    </div>
-    <div class="invoice-address">
-        <h4 class="tab-title">{$inv_addr.title}</h4>
-        <div class="form">
-            <p>{$inv_addr.info_text}</p>
-            {$inv_addr.form}
-        </div>
-    </div>
-    <div class="payment-method">
-        <h4 class="tab-title">{$method.title}</h4>
-        <div class="form">
-        </div>
-    </div>
-</form>
+<div class="tab-bar active-0">
+    <h4 class="active" id="address">{$address.title}</h4>
+    <h4 class="" id="delivery">{$delivery.title}</h4>
+    <h4 class="" id="payment">{$payment.title}</h4>
+</div>
+<div class="tab-content">
+    {$address.form}
+    {$address.action}
+</div>

@@ -16,17 +16,6 @@ var forgePayment = {
                 forgePayment.hideOverlay();
             }
         });
-
-        $("#payment-overlay.delivery").each(function() {
-            $(this).find("h4").unbind('click').on('click', function() {
-                $("#payment-overlay.delivery").find("h4").each(function() {
-                    $(this).removeClass("open");
-                    $(this).next().removeClass('show');
-                });
-                $(this).addClass("open");
-                $(this).next().addClass('show');
-            });
-        });
     },
 
     hideOverlay : function() {
