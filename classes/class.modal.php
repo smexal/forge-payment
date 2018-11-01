@@ -35,14 +35,24 @@ class PaymentModal {
         ));
     }
 
+    public static function handleDeliveryCheck($data) {
+        $data = $_POST;
+        foreach($_POST as $field) {
+            if(strlen($field) == 0) {
+                return json_encode(['status' => 'data-incomplete']);
+            }
+        }
+        return json_encode(['status' => 'data-complete']);
+    }
+
     private function renderDeliveryModal() {
         return App::instance()->render(MOD_ROOT."forge-payment/templates/", "modal-delivery", array(
             'pretitle' => Utils::formatAmount($this->payment->getTotalAmount()),
             'title' => i('Checkout', 'forge-payment'),
             'address' => [
                 'title' => i('1. Address', 'forge-payment'),
-                'form' => $this->getAddressForm('address'),
-                'action' => $this->getDeliveryActions()
+                'form' => '<form data-api="'.Utils::getUrl(['api']).'">'.$this->getAddressForm('address'),
+                'action' => $this->getDeliveryActions().'</form>'
             ],
             'delivery' => [
                 'title' => i('2. Delivery', 'forge-payment'),
@@ -55,7 +65,7 @@ class PaymentModal {
 
     private function getDeliveryActions() {
         $actions = '<div class="actions">';
-        $actions.= Fields::button(i('Continue', 'forge-payment'));
+        $actions.= Fields::button(i('Continue', 'forge-payment'),'primary', false, true);
         $actions.= '</div>';
         return $actions;
     }

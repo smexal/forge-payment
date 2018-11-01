@@ -120,6 +120,9 @@ class ForgePayment extends Module {
             $modal->params($_POST);
             return json_encode(array("content" => $modal->render()));
         }
+        if($data == 'delivery-check') {
+            return PaymentModal::handleDeliveryCheck($data);
+        }
         if($data['query'][0] == 'orders') {
             if( ! Auth::allowed('manage.forge-payment', true)) {
                 return '';

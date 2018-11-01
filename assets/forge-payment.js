@@ -16,6 +16,40 @@ var forgePayment = {
                 forgePayment.hideOverlay();
             }
         });
+
+        var update = false;
+        $("#payment-overlay.delivery").find("button").each(function() {
+            $(this).on('click', function(e) {
+                e.stopImmediatePropagation();
+                e.preventDefault();
+
+                // todo: send to next view.
+            });
+        });
+        $("#payment-overlay.delivery").find("input").each(function() {
+            $(this).on('input', function() {
+                clearTimeout(update);
+                var field = $(this);
+                update = setTimeout(function() {
+                    var data = field.closest('form').serialize();
+                    $.ajax({
+                        method: 'POST',
+                        url: field.closest('form').data('api') + '/forge-payment/delivery-check',
+                        data : data
+                    }).done(function(data) {
+                        if(data.status == "data-incomplete") {
+                            field.closest('form').find('button').each(function() {
+                                $(this).attr('disabled', 'disabled');
+                            });
+                        } else {
+                            field.closest('form').find('button').each(function() {
+                                $(this).removeAttr('disabled');
+                            });
+                        }
+                    });
+                }, 1500);
+            });
+        });
     },
 
     hideOverlay : function() {
