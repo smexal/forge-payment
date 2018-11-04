@@ -179,6 +179,18 @@ class Payment {
         return $this->orderId;
     }
 
+    public function addMeta($key, $values = []) {
+        $db = App::instance()->db;
+        $db->where('id', $this->orderId);
+        $meta = $db->getOne('forge_payment_orders');
+        $meta = json_decode(urldecode($meta['meta']));
+        $meta->$key = $values;
+        $db->where('id', $this->orderId);
+        $db->update('forge_payment_orders', [
+            'meta' => urlencode(json_encode($meta))
+        ]);
+    }
+
     private function decodeData() {
         if(is_array($this->data)) {
             foreach($this->data as $key => $value) {

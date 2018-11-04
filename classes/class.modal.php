@@ -45,6 +45,27 @@ class PaymentModal {
         return json_encode(['status' => 'data-complete']);
     }
 
+    public static function handleAddressCheck() {
+        $data = $_POST;
+        if(! is_numeric($_POST['order'])) {
+            return;
+        }
+        $order = Payment::getOrder($_POST['order']);
+        $address = [];
+        $address['salutation'] = $_POST['address_salutation'];
+        $address['forename'] = $_POST['address_forename'];
+        $address['name'] = $_POST['address_name'];
+        $address['street'] = $_POST['address_street'];
+        $address['zip'] = $_POST['address_zip'];
+        $address['country'] = $_POST['address_country'];
+        $address['email'] = $_POST['address_email'];
+        $order->addMeta('address', $address);
+
+        return json_encode([
+            'data' => 'saved'
+        ]);
+    }
+
     private function renderDeliveryModal() {
         return App::instance()->render(MOD_ROOT."forge-payment/templates/", "modal-delivery", array(
             'pretitle' => Utils::formatAmount($this->payment->getTotalAmount()),
@@ -104,6 +125,10 @@ class PaymentModal {
             'key' => $prefix.'_email',
             'label' => i('E-Mail Address', 'core'),
         ], '');
+        $form.= Fields::hidden([
+            'key' => 'order',
+            'value' => $this->payment->getId()
+        ]);
         return $form;
     }
 

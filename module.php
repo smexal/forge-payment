@@ -123,6 +123,9 @@ class ForgePayment extends Module {
         if($data == 'delivery-check') {
             return PaymentModal::handleDeliveryCheck($data);
         }
+        if($data == 'submit-address') {
+            return PaymentModal::handleAddressCheck();
+        }
         if($data['query'][0] == 'orders') {
             if( ! Auth::allowed('manage.forge-payment', true)) {
                 return '';

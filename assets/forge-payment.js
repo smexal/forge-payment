@@ -19,11 +19,18 @@ var forgePayment = {
 
         var update = false;
         $("#payment-overlay.delivery").find("button").each(function() {
+            var field = $(this);
             $(this).on('click', function(e) {
                 e.stopImmediatePropagation();
                 e.preventDefault();
+                var data = field.closest('form').serialize();
+                $.ajax({
+                    method: 'POST',
+                    url: field.closest('form').data('api') + '/forge-payment/submit-address',
+                    data : data
+                }).done(function(data) {
 
-                // todo: send to next view.
+                });
             });
         });
         $("#payment-overlay.delivery").find("input").each(function() {
