@@ -62,8 +62,57 @@ class PaymentModal {
         $order->addMeta('address', $address);
 
         return json_encode([
-            'data' => 'saved'
+            'data' => 'saved',
+            'new_data' => self::getDeliveryAddress()
         ]);
+    }
+
+    public static function getDeliveryAddress() {
+        $content = '<form data-api="'.Utils::getUrl(['api']).'">';
+
+        $prefix = 'delivery';
+        $content.= '<div class="delivery-fields">';
+        $content.= Fields::checkbox([
+            'key' => $prefix.'_custom_address',
+            'label' => i('Custom Delivery Address?', 'forge-payment'),
+        ], '');
+
+        $content.= Fields::text([
+            'key' => $prefix.'_name',
+            'label' => i('Name & Forename', 'forge-payment'),
+        ], '');
+        $content.= Fields::text([
+            'key' => $prefix.'_name',
+            'label' => i('Street & No.', 'forge-payment'),
+        ], '');
+        $content.= Fields::text([
+            'key' => $prefix.'_place',
+            'label' => i('ZIP & Place', 'forge-payment'),
+        ], '');
+        $content.= Fields::text([
+            'key' => $prefix.'_place',
+            'label' => i('ZIP & Place', 'forge-payment'),
+        ], '');
+        $content.='</div>';
+        $content.='<hr />';
+        $content.='<h3>'.i('Choose your desired delivery method', 'forge-payment').'</h3>';
+
+        $content.= Fields::checkbox([
+            'key' => $prefix.'_delivery_method',
+            'label' => i('Postal delivery', 'forge-payment'),
+            'hint' => i('Delivery within the next 5 workdays.', 'forge-payment')
+        ], 'delivery_method_1');
+
+        $content.= Fields::checkbox([
+            'key' => $prefix.'_delivery_method',
+            'label' => i('Postal delivery', 'forge-payment'),
+            'hint' => i('Delivery within the next 5 workdays.', 'forge-payment')
+        ], 'delivery_method_2');
+
+
+        $content.= self::getAddressActions();
+        $content.= '</form>';
+        return $content;
     }
 
     private function renderDeliveryModal() {
@@ -84,6 +133,14 @@ class PaymentModal {
         ));
     }
 
+    public static function getAddressActions() {
+        $actions = '<div class="actions">';
+        $actions.= Fields::button(i('Back', 'forge-payment'),'secondary');
+        $actions.= Fields::button(i('Continue', 'forge-payment'),'primary', false, true);
+        $actions.= '</div>';
+        return $actions;
+    }
+
     private function getDeliveryActions() {
         $actions = '<div class="actions">';
         $actions.= Fields::button(i('Continue', 'forge-payment'),'primary', false, true);
@@ -95,35 +152,35 @@ class PaymentModal {
         $form = '';
         $form.= Fields::select([
             'key' => $prefix.'_salutation',
-            'label' => i('Salutation', 'core'),
+            'label' => i('Salutation', 'forge-payment'),
             'values' => [
-                'mr' => i('Mr.', 'core'),
-                'mrs' => i('Mrs.', 'core')
+                'mr' => i('Mr.', 'forge-payment'),
+                'mrs' => i('Mrs.', 'forge-payment')
             ]
         ], '');
         $form.= Fields::text([
             'key' => $prefix.'_forename',
-            'label' => i('Forename', 'core'),
+            'label' => i('Forename', 'forge-payment'),
         ], '');
         $form.= Fields::text([
             'key' => $prefix.'_name',
-            'label' => i('Name', 'core'),
+            'label' => i('Name', 'forge-payment'),
         ], '');
         $form.= Fields::text([
             'key' => $prefix.'_street',
-            'label' => i('Street & No.', 'core'),
+            'label' => i('Street & No.', 'forge-payment'),
         ], '');
         $form.= Fields::text([
             'key' => $prefix.'_zip',
-            'label' => i('ZIP & Place', 'core'),
+            'label' => i('ZIP & Place', 'forge-payment'),
         ], '');
         $form.= Fields::text([
             'key' => $prefix.'_country',
-            'label' => i('Country', 'core'),
+            'label' => i('Country', 'forge-payment'),
         ], '');
         $form.= Fields::text([
             'key' => $prefix.'_email',
-            'label' => i('E-Mail Address', 'core'),
+            'label' => i('E-Mail Address', 'forge-payment'),
         ], '');
         $form.= Fields::hidden([
             'key' => 'order',

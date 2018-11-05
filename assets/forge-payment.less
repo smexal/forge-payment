@@ -7,6 +7,9 @@
     z-index: 1000;
 
     &.delivery {
+        .content {
+            overflow: hidden;
+        }
         * {
             transition: 300ms;
         }
@@ -23,10 +26,24 @@
         }
         .form-group {
             padding-bottom: 7px;
+
+            label {
+                position: static;
+            }
         }
 
         .tab-content {
             margin-top: 30px;
+            transition: 200ms;
+
+            &.loading {
+                transform: scale(0.95);
+                opacity: 0.6;
+            }
+            &.transition {
+                animation-name: delivery-modal-transition;
+                animation-duration: 600ms;
+            }
         }
 
         .tab-bar {
@@ -91,6 +108,22 @@
         }
     }
 }
+
+@keyframes delivery-modal-transition {
+    49% {
+        transform: translateX(-150%);
+        opacity: 0;
+    }
+    51% {
+        transform: translateX(150%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(150%);
+        opacity: 0.6;
+    }
+}
+
 #payment-overlay .pay-panel {
     width: 100%;
     min-height: 200px;

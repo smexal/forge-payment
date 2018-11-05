@@ -17,10 +17,16 @@ var forgePayment = {
             }
         });
 
-        var update = false;
+        forgePayment.deliverySubmitHandle();
+        forgePayment.deliveryInputChange();
+    },
+
+
+    deliverySubmitHandle : function() {
         $("#payment-overlay.delivery").find("button").each(function() {
             var field = $(this);
             $(this).on('click', function(e) {
+                field.closest('.tab-content').addClass('loading');
                 e.stopImmediatePropagation();
                 e.preventDefault();
                 var data = field.closest('form').serialize();
@@ -29,10 +35,20 @@ var forgePayment = {
                     url: field.closest('form').data('api') + '/forge-payment/submit-address',
                     data : data
                 }).done(function(data) {
-
+                    var tabContent = field.closest('.tab-content').addClass('transition');
+                    setTimeout(function() {
+                        tabContent.html(data.new_data);
+                    }, 300);
+                    setTimeout(function() {
+                        tabContent.removeClass('loading').removeClass('transition');
+                    }, 700);
                 });
             });
         });
+    },
+
+    deliveryInputChange : function() {
+        var update = false;
         $("#payment-overlay.delivery").find("input").each(function() {
             $(this).on('input', function() {
                 clearTimeout(update);
