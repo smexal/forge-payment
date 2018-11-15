@@ -22,6 +22,7 @@ class PaymentModal {
         }
         $this->payment = new Payment($data);
         $this->payment->create();
+        $_SESSION['orderId'] = $this->payment->getId();
     }
 
     public function render() {
@@ -45,12 +46,50 @@ class PaymentModal {
         return json_encode(['status' => 'data-complete']);
     }
 
-    public static function handleAddressCheck() {
+    public static function handleDeliveryTypeSubmit() {
         $data = $_POST;
-        if(! is_numeric($_POST['order'])) {
+        if(! is_numeric($_SESSION['orderId'])) {
             return;
         }
-        $order = Payment::getOrder($_POST['order']);
+        $order = Payment::getOrder($_SESSION['orderId']);
+        $delivery = [];
+        $delivery['type'] = $_POST['delivery_method'];
+        $delivery['address_name'] = $_POST['delivery_name'];
+        $delivery['address_street'] = $_POST['delivery_street'];
+        $delivery['address_place'] = $_POST['delivery_place'];
+        $delivery['address_country'] = $_POST['delivery_country'];
+        $order->addMeta('delivery', $delivery);
+
+        return json_encode([
+            'data' => 'saved',
+            'active_step' => 'payment',
+            'new_data' => self::getDeliveryPayment()
+        ]);
+    }
+
+    public static function getDeliveryPayment() {
+        $content = '<form data-api="'.Utils::getUrl(['api']).'">';
+        $content.= '<div class="delivery-fields">';
+        $content.= Fields::hidden([
+            'name' => 'curstep',
+            'value' => 'payment'
+        ]);
+        $content.= Fields::radio([
+            'key' => 'payment_method',
+            'label' => i('Prepayment', 'forge-payment'),
+            'hint' => i('Your delivery will be sent after we get your payment.', 'forge-payment')
+        ], 'payment_type_prepayment');
+        $content.= self::getDeliveryTypeActions();
+        $content.= '</form>';
+        return $content;
+    }
+
+    public static function handleAddressCheck() {
+        $data = $_POST;
+        if(! is_numeric($_SESSION['orderId'])) {
+            return;
+        }
+        $order = Payment::getOrder($_SESSION['orderId']);
         $address = [];
         $address['salutation'] = $_POST['address_salutation'];
         $address['forename'] = $_POST['address_forename'];
@@ -63,8 +102,66 @@ class PaymentModal {
 
         return json_encode([
             'data' => 'saved',
+            'active_step' => 'delivery',
             'new_data' => self::getDeliveryAddress()
         ]);
+    }
+
+    public static function handleDeliveryPaymentSubmit() {
+        $data = $_POST;
+        if(! is_numeric($_SESSION['orderId'])) {
+            return;
+        }
+        $order = Payment::getOrder($_SESSION['orderId']);
+        $payment = [];
+        $payment['payment_method'] = $_POST['payment_method'];
+        $order->addMeta('payment_method', $payment);
+        $order->setType($_POST['payment_method']);
+
+        return json_encode([
+            'data' => 'saved',
+            'active_step' => 'confirmation',
+            'new_data' => self::getDeliveryConfirmation()
+        ]);
+    }
+
+    public static function getDeliveryConfirmation() {
+        if(! is_numeric($_SESSION['orderId'])) {
+            return;
+        }
+        $confirmation = '';
+        $confirmation.= '<h2>'.i('Thank you for your order', 'forge-payment').'</h2>';
+        $confirmation.= '<p>'.i('We just sent you an email as confirmation. We will get in contact as soon as possible.', 'forge-payment');
+
+
+        //self::sendDeliveryUserMail($_SESSION['orderId']));
+        //self::sendDeliveryAdminMail($_SESSION['orderId']));
+
+        return $confirmation;
+    }
+
+    public static function sendDeliveryAdminMail($orderId) {
+        // TODO: SEND EMAIL
+
+    }
+
+    public static function sendDeliveryUserMail($orderId) {
+        // TODO: SEND EMAIL
+        /*
+        $order = Payment::getOrder($_SESSION['orderId']);
+        $mail = new Mail();
+        $mail->recipient($user->get('email'));
+
+        $mail->subject(sprintf(i('Order Confirmation'). ' - '.
+            Settings::get('title_'.Localization::getCurrentLanguage()));
+
+        $mail->addMessage(sprintf(i('Hello %s', 'forge-payment'), $user->get('username'))  . "\r\n" . "\r\n");
+        $mail->addMessage(sprintf(i('Hereby we confirm your following order:', 'forge-payment')) . "\r\n");
+
+
+        $mail->addMessage(sprintf(i('mail_end_text', 'core'))); */
+
+        //$mail->send();
     }
 
     public static function getDeliveryAddress() {
@@ -72,17 +169,21 @@ class PaymentModal {
 
         $prefix = 'delivery';
         $content.= '<div class="delivery-fields">';
+        $content.= Fields::hidden([
+            'name' => 'curstep',
+            'value' => 'delivery'
+        ]);
         $content.= Fields::checkbox([
             'key' => $prefix.'_custom_address',
             'label' => i('Custom Delivery Address?', 'forge-payment'),
         ], '');
-
+        $content.= '<div class="collapsed-address-fields">';
         $content.= Fields::text([
             'key' => $prefix.'_name',
             'label' => i('Name & Forename', 'forge-payment'),
         ], '');
         $content.= Fields::text([
-            'key' => $prefix.'_name',
+            'key' => $prefix.'_street',
             'label' => i('Street & No.', 'forge-payment'),
         ], '');
         $content.= Fields::text([
@@ -90,24 +191,19 @@ class PaymentModal {
             'label' => i('ZIP & Place', 'forge-payment'),
         ], '');
         $content.= Fields::text([
-            'key' => $prefix.'_place',
-            'label' => i('ZIP & Place', 'forge-payment'),
+            'key' => $prefix.'_country',
+            'label' => i('Country', 'forge-payment'),
         ], '');
+        $content.='</div>';
         $content.='</div>';
         $content.='<hr />';
         $content.='<h3>'.i('Choose your desired delivery method', 'forge-payment').'</h3>';
 
-        $content.= Fields::checkbox([
-            'key' => $prefix.'_delivery_method',
+        $content.= Fields::radio([
+            'key' => $prefix.'_method',
             'label' => i('Postal delivery', 'forge-payment'),
             'hint' => i('Delivery within the next 5 workdays.', 'forge-payment')
-        ], 'delivery_method_1');
-
-        $content.= Fields::checkbox([
-            'key' => $prefix.'_delivery_method',
-            'label' => i('Postal delivery', 'forge-payment'),
-            'hint' => i('Delivery within the next 5 workdays.', 'forge-payment')
-        ], 'delivery_method_2');
+        ], 'delivery_postal');
 
 
         $content.= self::getAddressActions();
@@ -129,14 +225,25 @@ class PaymentModal {
             ],
             'payment' => [
                 'title' => i('3. Payment', 'forge-payment'),
+            ],
+            'confirmation' => [
+                'title' => i('4. Confirmation', 'forge-payment'),
             ]
         ));
     }
 
+    public static function getDeliveryTypeActions() {
+        $actions = '<div class="actions">';
+        //$actions.= Fields::button(i('Back', 'forge-payment'), 'discreet');
+        $actions.= Fields::button(i('Complete order', 'forge-payment'),'primary');
+        $actions.= '</div>';
+        return $actions;
+    }
+
     public static function getAddressActions() {
         $actions = '<div class="actions">';
-        $actions.= Fields::button(i('Back', 'forge-payment'),'secondary');
-        $actions.= Fields::button(i('Continue', 'forge-payment'),'primary', false, true);
+        //$actions.= Fields::button(i('Back', 'forge-payment'), 'discreet');
+        $actions.= Fields::button(i('Continue', 'forge-payment'),'primary');
         $actions.= '</div>';
         return $actions;
     }
@@ -158,6 +265,10 @@ class PaymentModal {
                 'mrs' => i('Mrs.', 'forge-payment')
             ]
         ], '');
+        $form.= Fields::hidden([
+            'name' => 'curstep',
+            'value' => 'address'
+        ]);
         $form.= Fields::text([
             'key' => $prefix.'_forename',
             'label' => i('Forename', 'forge-payment'),
@@ -182,10 +293,6 @@ class PaymentModal {
             'key' => $prefix.'_email',
             'label' => i('E-Mail Address', 'forge-payment'),
         ], '');
-        $form.= Fields::hidden([
-            'key' => 'order',
-            'value' => $this->payment->getId()
-        ]);
         return $form;
     }
 

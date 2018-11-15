@@ -10,6 +10,7 @@ use \Forge\Core\Classes\Fields;
 use \Forge\Core\Classes\Settings;
 use \Forge\Core\Classes\Localization;
 use \Forge\Core\Classes\Utils;
+use \Forge\Core\App\ModifyHandler;
 
 
 
@@ -53,6 +54,26 @@ class ForgePayment extends Module {
 
     public function orders() {
         if (Auth::allowed("manage.forge-payment.orders.edit")) {
+            $uri = Utils::getUriComponents();
+            if(count($uri) > 4 && $uri[4] == 'detail' && is_numeric($uri[5])) {
+                ModifyHandler::instance()->add('modify_module_settings_template_directory', function($args) {
+                    return CORE_TEMPLATE_DIR."views/parts/";
+                });
+
+                ModifyHandler::instance()->add('modify_module_settings_template_name', function($args) {
+                    return CORE_TEMPLATE_DIR."crud.modify";
+                });
+
+                $order = Payment::getOrder($uri[5]);
+                ModifyHandler::instance()->add('modify_module_settings_render_args', function() use(&$order) {
+                    return [
+                        'title' => i('Order Details', 'forge-payment'),
+                        'message' => '',
+                        'form' => $order->getDetailView()
+                    ];
+                });
+            }
+
             if (array_key_exists('accept-order', $_GET)) {
                 $orderTable = new OrderTable();
                 Payment::acceptOrder($_GET['accept-order']);
@@ -123,8 +144,15 @@ class ForgePayment extends Module {
         if($data == 'delivery-check') {
             return PaymentModal::handleDeliveryCheck($data);
         }
-        if($data == 'submit-address') {
-            return PaymentModal::handleAddressCheck();
+        if($data == 'submit-delivery') {
+            if($_POST['curstep'] == 'address') {
+                return PaymentModal::handleAddressCheck();    
+            } elseif($_POST['curstep'] == 'delivery' ) {
+                return PaymentModal::handleDeliveryTypeSubmit();
+            } elseif($_POST['curstep'] == 'payment') {
+                return PaymentModal::handleDeliveryPaymentSubmit();
+            }
+            return;
         }
         if($data['query'][0] == 'orders') {
             if( ! Auth::allowed('manage.forge-payment', true)) {

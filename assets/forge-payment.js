@@ -19,11 +19,25 @@ var forgePayment = {
 
         forgePayment.deliverySubmitHandle();
         forgePayment.deliveryInputChange();
+        forgePayment.deliveryDifferentAddressCheckbox();
+    },
+
+    deliveryDifferentAddressCheckbox : function() {
+        // initialy hidden
+        $(".collapsed-address-fields").hide();
+
+        $("#delivery_custom_address").on('change', function() {
+            if($(this).is(':checked')) {
+                $(".collapsed-address-fields").show();
+            } else {
+                $(".collapsed-address-fields").hide();
+            }
+        });
     },
 
 
     deliverySubmitHandle : function() {
-        $("#payment-overlay.delivery").find("button").each(function() {
+        $("#payment-overlay.delivery").find("button.btn-primary").each(function() {
             var field = $(this);
             $(this).on('click', function(e) {
                 field.closest('.tab-content').addClass('loading');
@@ -32,18 +46,32 @@ var forgePayment = {
                 var data = field.closest('form').serialize();
                 $.ajax({
                     method: 'POST',
-                    url: field.closest('form').data('api') + '/forge-payment/submit-address',
+                    url: field.closest('form').data('api') + '/forge-payment/submit-delivery',
                     data : data
                 }).done(function(data) {
                     var tabContent = field.closest('.tab-content').addClass('transition');
                     setTimeout(function() {
                         tabContent.html(data.new_data);
+                        forgePayment.deliverySetActiveTab(data.active_step);
+                        $(document).trigger("ajaxReload");
                     }, 300);
                     setTimeout(function() {
                         tabContent.removeClass('loading').removeClass('transition');
                     }, 700);
                 });
             });
+        });
+    },
+
+    deliverySetActiveTab : function(active) {
+        $(".tab-bar h4").each(function() {
+            $(this).removeClass('active');
+        });
+        $(".tab-bar h4#" + active).addClass('active');
+        var position = $(".tab-bar h4#" + active).position();
+        $(".tab-bar .sub-bar").css({
+            'left' : position.left + 'px',
+            'width' : $(".tab-bar h4#" + active).width()
         });
     },
 

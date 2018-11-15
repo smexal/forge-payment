@@ -35,6 +35,8 @@ class Payment {
         foreach($orders as $o) {
             $order = Payment::getOrder($o['id']);
             $add = false;
+            if(!is_object($order->data['paymentMeta']))
+                continue;
             foreach($order->data['paymentMeta']->{'items'} as $item) {
                 if($item->collection == $collectionItem || $collectionItem == false) {
                     $add = true;
@@ -99,6 +101,64 @@ class Payment {
                 Payment::deleteOrder($order->data['id']);
             }
         }
+    }
+
+    public function getDetailView() {
+        $meta = $this->getMeta();
+
+        $return = '';
+        // items
+        $return.= '<h3>'.i('Items', 'forge-payment').'</h3>';
+        $return.= '<ul>';
+        foreach ($meta->items as $item) {
+            $return.= '<li>';
+            $return.= $item->amount.'x '.$item->title;
+            $return.= '</li>';
+        }
+        $return.= '</ul>';
+
+        $return.= '<hr />';
+
+        if(property_exists($meta, 'address')) {
+            $return.= '<h3>'.i('Address', 'forge-payment').'</h3>';
+            $return.= '<dl class="horizontal">';
+            $return.= '<dt>'.i('Salutation', 'forge-payment').'</dt><dd>'.$meta->address->salutation.'</dd>';
+            $return.= '<dt>'.i('Forename', 'forge-payment').'</dt><dd>'.$meta->address->forename.'</dd>';
+            $return.= '<dt>'.i('Name', 'forge-payment').'</dt><dd>'.$meta->address->name.'</dd>';
+            $return.= '<dt>'.i('Street', 'forge-payment').'</dt><dd>'.$meta->address->street.'</dd>';
+            $return.= '<dt>'.i('ZIP', 'forge-payment').'</dt><dd>'.$meta->address->zip.'</dd>';
+            $return.= '<dt>'.i('Country', 'forge-payment').'</dt><dd>'.$meta->address->country.'</dd>';
+            $return.= '<dt>'.i('E-Mail', 'forge-payment').'</dt><dd>'.$meta->address->email.'</dd>';
+            $return.= '</dl>';
+        }
+
+        if(property_exists($meta, 'delivery')) {
+            $return.= '<hr />';
+            $return.= '<h3>'.i('Delivery', 'forge-payment').'</h3>';
+            $return.= '<dl class="horizontal">';
+            $return.= '<dt>'.i('Type', 'forge-payment').'</dt><dd>'.$meta->delivery->type.'</dd>';
+            if(strlen($meta->delivery->address_name) > 0)
+                $return.= '<dt>'.i('Name', 'forge-payment').'</dt><dd>'.$meta->delivery->address_name.'</dd>';
+
+            if(strlen($meta->delivery->address_street) > 0)
+                $return.= '<dt>'.i('Street', 'forge-payment').'</dt><dd>'.$meta->delivery->address_street.'</dd>';
+
+            if(strlen($meta->delivery->address_place) > 0)
+                $return.= '<dt>'.i('Place', 'forge-payment').'</dt><dd>'.$meta->delivery->address_place.'</dd>';
+
+            if(strlen($meta->delivery->address_country) > 0)
+                $return.= '<dt>'.i('Country', 'forge-payment').'</dt><dd>'.$meta->delivery->address_country.'</dd>';
+
+            $return.= '</dl>';
+        }
+
+        if(property_exists($meta, 'payment_method')) {
+            $return.= '<hr />';
+            $return.= '<h3>'.i('Payment Method', 'forge-payment').'</h3>';
+            $return.= '<p>'.$meta->payment_method->payment_method.'</p>';
+        }  
+
+        return $return;
     }
 
     public static function acceptOrder($order) {
