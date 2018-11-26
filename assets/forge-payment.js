@@ -147,6 +147,7 @@ var forgePayment = {
     }, 
 
     load : function(data, modal) {
+        data.api = data.api.replace('http://', '//');
         $.ajax({
             method: 'POST',
             url: data.api + 'forge-payment/modal/',
