@@ -6,6 +6,9 @@ use \Forge\Core\App\ModifyHandler;
 use \Forge\Core\App\App;
 use \Forge\Core\Classes\Utils;
 use \Forge\Core\Classes\Fields;
+use \Forge\Core\Classes\Settings;
+use \Forge\Core\Classes\Mail;
+use \Forge\Core\Classes\Localization;
 use \Forge\Modules\ForgePayment\ForgePaymentPaypal;
 use \Forge\Modules\ForgePayment\ForgePaymentTransaction;
 
@@ -134,34 +137,68 @@ class PaymentModal {
         $confirmation.= '<p>'.i('We just sent you an email as confirmation. We will get in contact as soon as possible.', 'forge-payment');
 
 
-        //self::sendDeliveryUserMail($_SESSION['orderId']));
-        //self::sendDeliveryAdminMail($_SESSION['orderId']));
+        self::sendDeliveryUserMail($_SESSION['orderId']);
+        self::sendDeliveryAdminMail($_SESSION['orderId']);
 
         return $confirmation;
     }
 
     public static function sendDeliveryAdminMail($orderId) {
-        // TODO: SEND EMAIL
+        // send mail with payment information
+        $order = Payment::getOrder($orderId);
 
+        $meta = $order->getMeta();
+        $recipient = Settings::get('forge-payment-order-admin-address');
+        $name = $meta->address->forename.' '.$meta->address->forename;
+
+
+        $mail = new Mail();
+        $mail->recipient($recipient);
+        $mail->subject(Settings::get('title_'.Localization::getCurrentLanguage()).' - '.
+            sprintf(i('New Order with ID %s', 'forge-payment'), $orderId));
+
+        $text = Settings::get(Localization::getCurrentLanguage().'_forge-payment-order-admin-email');
+        $text = str_replace('{user}', $name, $text);
+        $text = str_replace('{items}', self::getEmailItemList($meta), $text);
+        $text = str_replace('{total}', Utils::formatAmount($order->data['price']), $text);
+        $text = str_replace('{orderid}', $orderId, $text);
+
+        $mail->addMessage($text);
+        $mail->send();
     }
 
     public static function sendDeliveryUserMail($orderId) {
-        // TODO: SEND EMAIL
-        /*
-        $order = Payment::getOrder($_SESSION['orderId']);
+        // send mail with payment information
+        $order = Payment::getOrder($orderId);
+
+        $meta = $order->getMeta();
+        $recipient = $meta->address->email;
+        $name = $meta->address->forename.' '.$meta->address->forename;
+
+
         $mail = new Mail();
-        $mail->recipient($user->get('email'));
+        $mail->recipient($recipient);
+        $mail->subject(Settings::get('title_'.Localization::getCurrentLanguage()).' - '.
+            sprintf(i('Confirmation for Order %s', 'forge-payment'), $orderId));
 
-        $mail->subject(sprintf(i('Order Confirmation'). ' - '.
-            Settings::get('title_'.Localization::getCurrentLanguage()));
+        $text = Settings::get(Localization::getCurrentLanguage().'_forge-payment-order-user-email');
+        $text = str_replace('{user}', $name, $text);
+        $text = str_replace('{items}', self::getEmailItemList($meta), $text);
+        $text = str_replace('{total}', Utils::formatAmount($order->data['price']), $text);
+        $text = str_replace('{orderid}', $orderId, $text);
 
-        $mail->addMessage(sprintf(i('Hello %s', 'forge-payment'), $user->get('username'))  . "\r\n" . "\r\n");
-        $mail->addMessage(sprintf(i('Hereby we confirm your following order:', 'forge-payment')) . "\r\n");
+        $mail->addMessage($text);
+        $mail->send();
+    }
 
+    public static function getEmailItemList($meta) {
+        $return = '';
 
-        $mail->addMessage(sprintf(i('mail_end_text', 'core'))); */
+        foreach($meta->items as $item) {
+            $return.= $item->amount.'x '.$item->title.' ('.$item->price.')'."\r\n";
+        }
 
-        //$mail->send();
+        return $return;
     }
 
     public static function getDeliveryAddress() {

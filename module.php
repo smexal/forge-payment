@@ -133,6 +133,40 @@ class ForgePayment extends Module {
             'label' => i('Transaction E-Mail', 'forge-payment'),
             'hint' => i('Use the following variables: {user} {total} {orderid} {items}, which get replaced by actual values.', 'forge-payment')
         ), Settings::get($transMailKey)), $transMailKey, 'right', 'forge-payment');
+
+
+        /*
+         * USER EMAIL FOR SHOP ORDER
+         */
+        $orderUserMailKey = Localization::getCurrentLanguage().'_forge-payment-order-user-email';
+        $this->settings->registerField(
+            Fields::textarea(array(
+            'key' => $orderUserMailKey,
+            'label' => i('User E-Mail for delivery order.', 'forge-payment'),
+            'hint' => i('Use the following variables: {user} {total} {orderid} {items}, which get replaced by actual values.', 'forge-payment')
+        ), Settings::get($orderUserMailKey)), $orderUserMailKey, 'right', 'forge-payment');
+
+        /*
+         * ADMIN EMAIL FOR SHOP ORDER
+         */
+        $orderAdminMailKey = Localization::getCurrentLanguage().'_forge-payment-order-admin-email';
+        $this->settings->registerField(
+            Fields::textarea(array(
+            'key' => $orderAdminMailKey,
+            'label' => i('Administrator E-Mail for delivery order.', 'forge-payment'),
+            'hint' => i('Use the following variables: {user} {total} {orderid} {items}, which get replaced by actual values.', 'forge-payment')
+        ), Settings::get($orderAdminMailKey)), $orderAdminMailKey, 'right', 'forge-payment');
+
+        /*
+         * ADMIN EMAIL ADDRESS FOR SHOP ORDERS
+         */
+        $orderAdminAddressKey = 'forge-payment-order-admin-address';
+        $this->settings->registerField(
+            Fields::text(array(
+            'key' => $orderAdminAddressKey,
+            'label' => i('Administrator E-Mail for delivery order.', 'forge-payment'),
+            'hint' => i('Use the following variables: {user} {total} {orderid} {items}, which get replaced by actual values.', 'forge-payment')
+        ), Settings::get($orderAdminAddressKey)), $orderAdminAddressKey, 'right', 'forge-payment');
     }
 
     public function apiAdapter($data) {
