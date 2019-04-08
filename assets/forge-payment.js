@@ -83,11 +83,13 @@ var forgePayment = {
                 var field = $(this);
                 update = setTimeout(function() {
                     var data = field.closest('form').serialize();
+                    $("#payment-overlay.delivery").find(".actions").addClass('loading');
                     $.ajax({
                         method: 'POST',
                         url: field.closest('form').data('api') + '/forge-payment/delivery-check',
                         data : data
                     }).done(function(data) {
+                        $("#payment-overlay.delivery").find(".actions").removeClass('loading');
                         if(data.status == "data-incomplete") {
                             field.closest('form').find('button').each(function() {
                                 $(this).attr('disabled', 'disabled');
@@ -98,7 +100,7 @@ var forgePayment = {
                             });
                         }
                     });
-                }, 1500);
+                }, 800);
             });
         });
     },

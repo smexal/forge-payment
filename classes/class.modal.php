@@ -4,7 +4,9 @@ namespace Forge\Modules\ForgePayment;
 
 use \Forge\Core\App\ModifyHandler;
 use \Forge\Core\App\App;
+use \Forge\Core\App\Auth;
 use \Forge\Core\Classes\Utils;
+use \Forge\Core\Classes\User;
 use \Forge\Core\Classes\Fields;
 use \Forge\Core\Classes\Settings;
 use \Forge\Core\Classes\Mail;
@@ -40,6 +42,9 @@ class PaymentModal {
     }
 
     public static function handleDeliveryCheck($data) {
+        if($_POST['curstep'] == 'delivery' && ! array_key_exists('delivery_custom_address', $_POST)) {
+            return json_encode(['status' => 'data-complete']);
+        }
         $data = $_POST;
         foreach($_POST as $field) {
             if(strlen($field) == 0) {
@@ -81,7 +86,7 @@ class PaymentModal {
             'key' => 'payment_method',
             'label' => i('Prepayment', 'forge-payment'),
             'hint' => i('Your delivery will be sent after we get your payment.', 'forge-payment')
-        ], 'payment_type_prepayment');
+        ], 'on');
         $content.= self::getDeliveryTypeActions();
         $content.= '</form>';
         return $content;
@@ -240,7 +245,7 @@ class PaymentModal {
             'key' => $prefix.'_method',
             'label' => i('Postal delivery', 'forge-payment'),
             'hint' => i('Delivery within the next 5 workdays.', 'forge-payment')
-        ], 'delivery_postal');
+        ], 'on');
 
 
         $content.= self::getAddressActions();
@@ -293,6 +298,11 @@ class PaymentModal {
     }
 
     private function getAddressForm($prefix='') {
+        $user = false;
+        if(Auth::any()) {
+            $user = App::instance()->user;
+        }
+
         $form = '';
         $form.= Fields::select([
             'key' => $prefix.'_salutation',
@@ -309,11 +319,11 @@ class PaymentModal {
         $form.= Fields::text([
             'key' => $prefix.'_forename',
             'label' => i('Forename', 'forge-payment'),
-        ], '');
+        ], $user ? $user->getMeta('forename') : '');
         $form.= Fields::text([
             'key' => $prefix.'_name',
             'label' => i('Name', 'forge-payment'),
-        ], '');
+        ], $user ? $user->getMeta('lastname') : '');
         $form.= Fields::text([
             'key' => $prefix.'_street',
             'label' => i('Street & No.', 'forge-payment'),
@@ -329,7 +339,7 @@ class PaymentModal {
         $form.= Fields::text([
             'key' => $prefix.'_email',
             'label' => i('E-Mail Address', 'forge-payment'),
-        ], '');
+        ], $user ? $user->get('email') : '');
         return $form;
     }
 

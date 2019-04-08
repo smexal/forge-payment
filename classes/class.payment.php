@@ -109,13 +109,27 @@ class Payment {
         $return = '';
         // items
         $return.= '<h3>'.i('Items', 'forge-payment').'</h3>';
-        $return.= '<ul>';
+        $return.= '<table class="default small">';
+        $return.= '<tr>';
+        $return.= '<th>'.i('Amount', 'forge-payment').'</th>';
+        $return.= '<th>'.i('Product', 'forge-payment').'</th>';
+        $return.= '<th style="text-align: right">'.i('Price', 'forge-payment').'</th>';
+        $return.= '</tr>';
+        $total = 0;
         foreach ($meta->items as $item) {
-            $return.= '<li>';
-            $return.= $item->amount.'x '.$item->title;
-            $return.= '</li>';
+            $collectionitem = new CollectionItem($item->collection);
+            $total+= $item->amount * $collectionitem->getMeta('price');
+
+            $return.= '<tr>';
+            $return.= '<td>'.$item->amount.'</td>';
+            $return.= '<td>'.$item->title.'</td>';
+            $return.= '<td style="text-align: right">'.$item->price.'</td>';
+            $return.= '</tr>';
         }
-        $return.= '</ul>';
+        $return.= '<tr>';
+        $return.= '<th colspan="100" style="text-align:right">'.Utils::formatAmount($total).'</th>';
+        $return.= '</tr>';
+        $return.= '</table>';
 
         $return.= '<hr />';
 

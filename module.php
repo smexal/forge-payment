@@ -6,6 +6,7 @@ use \Forge\Core\Abstracts\Module;
 use \Forge\Core\App\API;
 use \Forge\Core\App\App;
 use \Forge\Core\App\Auth;
+use \Forge\Core\Classes\Logger;
 use \Forge\Core\Classes\Fields;
 use \Forge\Core\Classes\Settings;
 use \Forge\Core\Classes\Localization;
@@ -61,7 +62,7 @@ class ForgePayment extends Module {
                 });
 
                 ModifyHandler::instance()->add('modify_module_settings_template_name', function($args) {
-                    return CORE_TEMPLATE_DIR."crud.modify";
+                    return "crud.modify";
                 });
 
                 $order = Payment::getOrder($uri[5]);
