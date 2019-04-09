@@ -84,13 +84,6 @@ class OrderTable {
                 'update_item_filter_order_table',
                 $values
             );
-            /**
-             * [
-                    'item:11' => i('Butterlan 12', 'forge-payment'),
-                    'item:12' => i('Butterlan 13', 'forge-payment'),
-                    'item:13' => i('Butterlan 12S', 'forge-payment'),
-                ]
-             */
             if(count($values) > 0) {
                 $bar->addDirectFilter([
                     'label' => i('Items', 'forge-payment'),
@@ -149,9 +142,15 @@ class OrderTable {
             }
             if($this->itemFilter) {
                 $occurs = false;
-                foreach($order->data['paymentMeta']->items as $item) {
-                    if($item->collection == $this->itemFilter) {
-                        $occurs = true;
+                if(@$order->data['paymentMeta']->delivery->type == $this->itemFilter) {
+                    $occurs = true;
+                }
+
+                if(! $occurs) {
+                    foreach($order->data['paymentMeta']->items as $item) {
+                        if($item->collection == $this->itemFilter) {
+                            $occurs = true;
+                        }
                     }
                 }
                 if(! $occurs) {

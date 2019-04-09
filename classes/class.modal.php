@@ -85,8 +85,9 @@ class PaymentModal {
         $content.= Fields::radio([
             'key' => 'payment_method',
             'label' => i('Prepayment', 'forge-payment'),
-            'hint' => i('Your delivery will be sent after we get your payment.', 'forge-payment')
-        ], 'on');
+            'hint' => i('Your delivery will be sent after we get your payment.', 'forge-payment'),
+            'active' => 'payment_method_prepayment',
+        ], 'payment_method_prepayment');
         $content.= self::getDeliveryTypeActions();
         $content.= '</form>';
         return $content;
@@ -144,6 +145,7 @@ class PaymentModal {
 
         self::sendDeliveryUserMail($_SESSION['orderId']);
         self::sendDeliveryAdminMail($_SESSION['orderId']);
+        \Forge\Modules\ForgeShoppingcart\Cart::clear();
 
         return $confirmation;
     }
@@ -244,8 +246,9 @@ class PaymentModal {
         $content.= Fields::radio([
             'key' => $prefix.'_method',
             'label' => i('Postal delivery', 'forge-payment'),
+            'active' => 'postal_delivery',
             'hint' => i('Delivery within the next 5 workdays.', 'forge-payment')
-        ], 'on');
+        ], 'postal_delivery');
 
 
         $content.= self::getAddressActions();
