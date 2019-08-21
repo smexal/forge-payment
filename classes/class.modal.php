@@ -302,9 +302,9 @@ class PaymentModal {
 
     private function getAddressForm($prefix='') {
         $user = false;
-        if(Auth::any()) {
+        /*if(Auth::any()) {
             $user = App::instance()->user;
-        }
+        }*/
 
         $form = '';
         $form.= Fields::select([
