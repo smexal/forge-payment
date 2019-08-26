@@ -166,7 +166,7 @@ class PaymentModal {
 
         $text = Settings::get(Localization::getCurrentLanguage().'_forge-payment-order-admin-email');
         $text = str_replace('{forename}', $meta->address->forename, $text);
-        $text = str_replace('{lastname}', $meta->address->lastname, $text);
+        $text = str_replace('{lastname}', $meta->address->name, $text);
         $text = str_replace('{items}', self::getEmailItemList($meta), $text);
         $text = str_replace('{total}', Utils::formatAmount($order->data['price']), $text);
         $text = str_replace('{orderid}', $orderId, $text);
@@ -189,7 +189,7 @@ class PaymentModal {
 
         $text = Settings::get(Localization::getCurrentLanguage().'_forge-payment-order-user-email');
         $text = str_replace('{forename}', $meta->address->forename, $text);
-        $text = str_replace('{lastname}', $meta->address->lastname, $text);
+        $text = str_replace('{lastname}', $meta->address->name, $text);
         $text = str_replace('{items}', self::getEmailItemList($meta), $text);
         $text = str_replace('{total}', Utils::formatAmount($order->data['price']), $text);
         $text = str_replace('{orderid}', $orderId, $text);
@@ -302,9 +302,9 @@ class PaymentModal {
 
     private function getAddressForm($prefix='') {
         $user = false;
-        /*if(Auth::any()) {
+        if(Auth::any() && method_exists(App::instance()->user, 'getMeta')) {
             $user = App::instance()->user;
-        }*/
+        }
 
         $form = '';
         $form.= Fields::select([
