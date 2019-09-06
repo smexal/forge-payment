@@ -165,7 +165,8 @@ class PaymentModal {
             sprintf(i('New Order with ID %s', 'forge-payment'), $orderId));
 
         $text = Settings::get(Localization::getCurrentLanguage().'_forge-payment-order-admin-email');
-        $text = str_replace('{user}', $name, $text);
+        $text = str_replace('{forename}', $meta->address->forename, $text);
+        $text = str_replace('{lastname}', $meta->address->name, $text);
         $text = str_replace('{items}', self::getEmailItemList($meta), $text);
         $text = str_replace('{total}', Utils::formatAmount($order->data['price']), $text);
         $text = str_replace('{orderid}', $orderId, $text);
@@ -180,8 +181,6 @@ class PaymentModal {
 
         $meta = $order->getMeta();
         $recipient = $meta->address->email;
-        $name = $meta->address->forename.' '.$meta->address->forename;
-
 
         $mail = new Mail();
         $mail->recipient($recipient);
@@ -189,7 +188,8 @@ class PaymentModal {
             sprintf(i('Confirmation for Order %s', 'forge-payment'), $orderId));
 
         $text = Settings::get(Localization::getCurrentLanguage().'_forge-payment-order-user-email');
-        $text = str_replace('{user}', $name, $text);
+        $text = str_replace('{forename}', $meta->address->forename, $text);
+        $text = str_replace('{lastname}', $meta->address->name, $text);
         $text = str_replace('{items}', self::getEmailItemList($meta), $text);
         $text = str_replace('{total}', Utils::formatAmount($order->data['price']), $text);
         $text = str_replace('{orderid}', $orderId, $text);
@@ -302,7 +302,7 @@ class PaymentModal {
 
     private function getAddressForm($prefix='') {
         $user = false;
-        if(Auth::any()) {
+        if(Auth::any() && method_exists(App::instance()->user, 'getMeta')) {
             $user = App::instance()->user;
         }
 
