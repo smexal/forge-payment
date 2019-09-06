@@ -168,6 +168,17 @@ class ForgePayment extends Module {
             'label' => i('Administrator E-Mail for delivery order.', 'forge-payment'),
             'hint' => i('Use the following variables: {user} {total} {orderid} {items}, which get replaced by actual values.', 'forge-payment')
         ), Settings::get($orderAdminAddressKey)), $orderAdminAddressKey, 'right', 'forge-payment');
+
+        /*
+         * Delivery Fee
+         */
+        $feeKey = 'forge-fixed-fee-delivery';
+        $this->settings->registerField(
+            Fields::text(array(
+            'key' => $feeKey,
+            'label' => i('Fixed fee for delivery', 'forge-payment'),
+            'hint' => i('Leave this empty if not fee should be added.', 'forge-payment')
+        ), Settings::get($feeKey)), $feeKey, 'right', 'forge-payment');
     }
 
     public function apiAdapter($data) {

@@ -117,8 +117,12 @@ class Payment {
         $return.= '</tr>';
         $total = 0;
         foreach ($meta->items as $item) {
-            $collectionitem = new CollectionItem($item->collection);
-            $total+= $item->amount * $collectionitem->getMeta('price');
+            if($item->collection == 'delivery_cost') {
+                $total+= Settings::get('forge-fixed-fee-delivery');
+            } else {
+                $collectionitem = new CollectionItem($item->collection);
+                $total+= $item->amount * $collectionitem->getMeta('price');
+            }
 
             $return.= '<tr>';
             $return.= '<td>'.$item->amount.'</td>';
@@ -285,7 +289,7 @@ class Payment {
         return $this->orderId;
     }
 
-    public function getTotalAmount($inCents = false) {
+    public function getTotalAmount($inCents = false, $delivery = false) {
         $total = 0;
         $this->decodeData();
 
@@ -294,6 +298,10 @@ class Payment {
             $itemPrice = $col->getMeta('price');
             $total += $itemPrice * $item->amount;
         }
+        if($delivery && is_numeric(Settings::get('forge-fixed-fee-delivery'))) {
+            $total+= Settings::get('forge-fixed-fee-delivery');
+        }
+
         if($inCents) {
             return $total*100;
         }

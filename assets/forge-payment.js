@@ -133,7 +133,7 @@ var forgePayment = {
             deliveryClass = 'delivery';
         }
         var overlay = $(
-            "<div class="+deliveryClass+" id='payment-overlay'><div class='pay-panel loading'>" +
+            "<div class='"+deliveryClass+"' id='payment-overlay'><div class='pay-panel loading'>" +
                 "<div class='content'></div>" +
                 "<div class='close'></div>" +
             "</div></div>"

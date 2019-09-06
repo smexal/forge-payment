@@ -258,7 +258,7 @@ class PaymentModal {
 
     private function renderDeliveryModal() {
         return App::instance()->render(MOD_ROOT."forge-payment/templates/", "modal-delivery", array(
-            'pretitle' => Utils::formatAmount($this->payment->getTotalAmount()),
+            'pretitle' => Utils::formatAmount($this->payment->getTotalAmount(false, $this->delivery)),
             'title' => i('Checkout', 'forge-payment'),
             'address' => [
                 'title' => i('1. Address', 'forge-payment'),
