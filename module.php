@@ -34,6 +34,13 @@ class ForgePayment extends Module {
         Auth::registerPermissions("manage.forge-payment");
         Auth::registerPermissions("manage.forge-payment.orders.edit");
 
+        if(! Settings::get('forge-payment-transaction-allowed')) {
+            // remove transaction adapter
+            if (($key = array_search('\Forge\Modules\ForgePayment\ForgePaymentTransaction', self::$adapters)) !== false) {
+                unset(self::$adapters[$key]);
+            }
+        }
+
         $this->install();
 
         $this->settingsViews = [
@@ -114,26 +121,39 @@ class ForgePayment extends Module {
         }
 
         /*
-         * TRANSACTION
+         * TRANSACTION ALLOWED
          */
-        $transMailKey = Localization::getCurrentLanguage().'_forge-payment-transaction-email';
+        $allowTransaction = 'forge-payment-transaction-allowed';
         $this->settings->registerField(
-            Fields::textarea(array(
-            'key' => $transMailKey,
-            'label' => i('Transaction E-Mail', 'forge-payment'),
-            'hint' => i('Use the following variables: {user} {total} {orderid}, which get replaced by actual values.', 'forge-payment')
-        ), Settings::get($transMailKey)), $transMailKey, 'right', 'forge-payment');
+            Fields::checkbox(array(
+            'key' => $allowTransaction,
+            'label' => i('Allow Transaction', 'forge-payment'),
+            'hint' => i('Check if it is allowed to pay with transaction.', 'forge-payment')
+        ), Settings::get($allowTransaction)), $allowTransaction, 'right', 'forge-payment');
 
-        /*
-         * ORDER ACCEPTED
-         */
-        $transMailKey = Localization::getCurrentLanguage().'_forge-payment-accepted-email';
-        $this->settings->registerField(
-            Fields::textarea(array(
-            'key' => $transMailKey,
-            'label' => i('Transaction E-Mail', 'forge-payment'),
-            'hint' => i('Use the following variables: {user} {total} {orderid} {items}, which get replaced by actual values.', 'forge-payment')
-        ), Settings::get($transMailKey)), $transMailKey, 'right', 'forge-payment');
+        if(Settings::get($allowTransaction)) {
+            /*
+             * TRANSACTION
+             */
+            $transMailKey = Localization::getCurrentLanguage().'_forge-payment-transaction-email';
+            $this->settings->registerField(
+                Fields::textarea(array(
+                'key' => $transMailKey,
+                'label' => i('Transaction E-Mail for a Open Order', 'forge-payment'),
+                'hint' => i('Use the following variables: {user} {total} {orderid}, which get replaced by actual values.', 'forge-payment')
+            ), Settings::get($transMailKey)), $transMailKey, 'right', 'forge-payment');
+
+            /*
+             * ORDER ACCEPTED
+             */
+            $transMailKey = Localization::getCurrentLanguage().'_forge-payment-accepted-email';
+            $this->settings->registerField(
+                Fields::textarea(array(
+                'key' => $transMailKey,
+                'label' => i('Transaction E-Mail for a Accepted Order by the Admin', 'forge-payment'),
+                'hint' => i('Use the following variables: {user} {total} {orderid} {items}, which get replaced by actual values.', 'forge-payment')
+            ), Settings::get($transMailKey)), $transMailKey, 'right', 'forge-payment');
+        }
 
 
         /*
