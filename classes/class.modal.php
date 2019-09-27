@@ -187,11 +187,16 @@ class PaymentModal {
         $mail->subject(Settings::get('title_'.Localization::getCurrentLanguage()).' - '.
             sprintf(i('Confirmation for Order %s', 'forge-payment'), $orderId));
 
+        $total = $order->data['price'];
+        if(Settings::get('forge-fixed-fee-delivery')) {
+            $total += Settings::get('forge-fixed-fee-delivery');
+        }
+
         $text = Settings::get(Localization::getCurrentLanguage().'_forge-payment-order-user-email');
         $text = str_replace('{forename}', $meta->address->forename, $text);
         $text = str_replace('{lastname}', $meta->address->name, $text);
         $text = str_replace('{items}', self::getEmailItemList($meta), $text);
-        $text = str_replace('{total}', Utils::formatAmount($order->data['price']), $text);
+        $text = str_replace('{total}', Utils::formatAmount($total), $text);
         $text = str_replace('{orderid}', $orderId, $text);
 
         $mail->addMessage($text);
