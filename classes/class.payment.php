@@ -73,7 +73,9 @@ class Payment {
 
     public static function getCurrency() {
         $defaultCurrency = Settings::get('forge-payment-default-currency');
-        $userCurrency = App::instance()->user->getMeta('currency');
+        $userCurrency = false;
+        if(Auth::any())
+            $userCurrency = App::instance()->user->getMeta('currency');
 
         if($userCurrency) {
             return $userCurrency;
