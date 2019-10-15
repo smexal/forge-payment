@@ -28,7 +28,26 @@ class ForgePayment extends Module {
         $this->name = i('Payments', 'forge-payment');
         $this->description = i('Payment Adapters for Forge.', 'forge-payment');
         $this->image = $this->url().'assets/images/module-image.png';
+
+
+        ModifyHandler::instance()->add(
+            'modify_user_metafields',
+            [$this, 'modifyUserFields']
+        );
     }
+
+
+    public function modifyUserFields($fields) {
+        $fields[] = [
+            'key' => 'currency',
+            'label' => i('Currency Settings'),
+            'type' => 'text',
+            'required' => true,
+            'position' => 'hidden'
+        ];
+        return $fields;
+    }
+
 
     public function start() {
         Auth::registerPermissions("manage.forge-payment");
@@ -199,6 +218,20 @@ class ForgePayment extends Module {
             'label' => i('Fixed fee for delivery', 'forge-payment'),
             'hint' => i('Leave this empty if not fee should be added.', 'forge-payment')
         ), Settings::get($feeKey)), $feeKey, 'right', 'forge-payment');
+
+
+        $defaultCurrencyKey = 'forge-payment-default-currency';
+        $this->settings->registerField(
+            Fields::select(array(
+            'key' => $defaultCurrencyKey,
+            'label' => i('Default Currency', 'forge-payment'),
+            'hint' => '',
+            'values' => [
+                'CHF' => i('CHF / Swiss francs', 'forge-payment'),
+                'EUR' => i('EUR / Euro', 'forge-payment'),
+                'USD' => i('USD / US Dollar', 'forge-payment'),
+            ]
+        ), Settings::get($defaultCurrencyKey)), $defaultCurrencyKey, 'right', 'forge-payment');
     }
 
     public function apiAdapter($data) {

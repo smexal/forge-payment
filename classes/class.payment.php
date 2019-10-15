@@ -71,6 +71,38 @@ class Payment {
         }
     }
 
+    public static function getCurrency() {
+        $defaultCurrency = Settings::get('forge-payment-default-currency');
+        $userCurrency = App::instance()->user->getMeta('currency');
+
+        if($userCurrency) {
+            return $userCurrency;
+        }
+        if($defaultCurrency) {
+            return $defaultCurrency;
+        }
+        return 'USD';
+    }
+
+    public function getCurrencySign() {
+        $currency = self::getCurrency();
+        $currencySigns = [
+            'USD' => '$',
+            'EUR' => '€',
+            'CHF' => 'CHF'
+        ];
+        return $currencySigns[$currency];
+    }
+
+    public static function setUserCurrency($currency) {
+        if(! in_array($currency, ['USD', 'EUR', 'CHF']))
+            return;
+        if(! Auth::any())
+            return;
+
+        App::instance()->user->setMeta('currency', $currency);
+    }
+
     public static function cancel($condition) {
         if(array_key_exists('token', $condition)) {
             App::instance()->db->where('token', $condition['token']);
