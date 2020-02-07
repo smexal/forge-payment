@@ -5,7 +5,8 @@ use Forge\Core\App\App;
 use Forge\Core\App\ModifyHandler;
 use Forge\Core\Classes\User;
 use Forge\Core\Classes\Utils;
-use \Forge\Core\Classes\TableBar;
+use Forge\Core\Classes\Pagination;
+use Forge\Core\Classes\TableBar;
 
 
 class OrderTable {
@@ -96,11 +97,23 @@ class OrderTable {
             $bar = '';
         }
 
+        if($this->searchTerm || $this->statusFilter || $this->itemFilter) {
+            $pagination = '';
+        } else {
+            if(! array_key_exists('page', $_GET)) {
+                $page = 1;
+            } else {
+                $page = $_GET['page'];
+            }
+            $pagination = new Pagination(Payment::getOrderAmount(), $page);
+            $pagination = $pagination->render();
+        }
+
         return $bar.App::instance()->render(CORE_TEMPLATE_DIR."assets/", "table", array(
             'id' => $this->tableId,
             'th' => $ths,
             'td' => $this->getOrderRows()
-        ));
+        )).$pagination;
     }
 
     public function removeDrafts() {
@@ -113,7 +126,16 @@ class OrderTable {
     }
 
     private function getOrderRows() {
-        $orders = Payment::getOrders();
+        if(! array_key_exists('page', $_GET)) {
+            $page = 1;
+        } else {
+            $page = $_GET['page'];
+        }
+        // disable pagination if search or filter is active.
+        if($this->searchTerm || $this->statusFilter || $this->itemFilter) {
+            $page = false;
+        }
+        $orders = Payment::getOrders(false, $page);
         $ordersEnriched = [];
         foreach($orders as $order) {
             $row = new \stdClass();

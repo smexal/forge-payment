@@ -27,11 +27,22 @@ class Payment {
         App::instance()->db->delete('forge_payment_orders');
     }
 
-    public static function getOrders($collectionItem = false) {
+    public static function getOrderAmount() {
+        $db = App::instance()->db;
+        $db->withTotalCount()->get('forge_payment_orders');
+        return $db->totalCount;
+    }
+
+    public static function getOrders($collectionItem = false, $page = false) {
         $db = App::instance()->db;
         $returnOrders = [];
         $db->orderBy("order_date","desc");
-        $orders = $db->get("forge_payment_orders");
+        if($page == false) {
+            $orders = $db->get('forge_payment_orders');
+        } else {
+            $db->pageLimit = PAGINATION_SIZE;
+            $orders = $db->arraybuilder()->paginate('forge_payment_orders', $page);
+        }
         foreach($orders as $o) {
             $order = Payment::getOrder($o['id']);
             $add = false;
