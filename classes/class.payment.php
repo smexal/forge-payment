@@ -97,7 +97,7 @@ class Payment {
         return 'USD';
     }
 
-    public function getCurrencySign() {
+    public static function getCurrencySign() {
         $currency = self::getCurrency();
         $currencySigns = [
             'USD' => '$',
