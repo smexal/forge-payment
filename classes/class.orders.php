@@ -97,7 +97,7 @@ class OrderTable {
             $bar = '';
         }
 
-        if($this->searchTerm || $this->statusFilter || $this->itemFilter) {
+        if($this->searchTerm || $this->statusFilter || $this->itemFilter || $this->displayBar == false) {
             $pagination = '';
         } else {
             if(! array_key_exists('page', $_GET)) {
