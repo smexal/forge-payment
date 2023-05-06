@@ -18,6 +18,7 @@ use \Forge\Core\App\ModifyHandler;
 
 
 class ForgePayment extends Module {
+    public $settings;
     public $defaultSettingsView = 'orders';
 
     public static $adapters = [
@@ -29,7 +30,7 @@ class ForgePayment extends Module {
         $this->id = "forge-payment";
         $this->name = i('Payments', 'forge-payment');
         $this->description = i('Payment Adapters for Forge.', 'forge-payment');
-        $this->image = $this->url().'assets/images/module-image.png';
+        $this->image = $this->url() . 'assets/images/module-image.png';
 
 
         ModifyHandler::instance()->add(
@@ -55,7 +56,7 @@ class ForgePayment extends Module {
         Auth::registerPermissions("manage.forge-payment");
         Auth::registerPermissions("manage.forge-payment.orders.edit");
 
-        if(! Settings::get('forge-payment-transaction-allowed')) {
+        if (!Settings::get('forge-payment-transaction-allowed')) {
             // remove transaction adapter
             if (($key = array_search('\Forge\Modules\ForgePayment\ForgePaymentTransaction', self::$adapters)) !== false) {
                 unset(self::$adapters[$key]);
@@ -73,8 +74,8 @@ class ForgePayment extends Module {
         ];
 
         // frontend
-        App::instance()->tm->theme->addScript($this->url()."assets/forge-payment.js", true);
-        App::instance()->tm->theme->addStyle(MOD_ROOT."forge-payment/assets/forge-payment.less");
+        App::instance()->tm->theme->addScript($this->url() . "assets/forge-payment.js", true);
+        App::instance()->tm->theme->addStyle(MOD_ROOT . "forge-payment/assets/forge-payment.less");
 
         API::instance()->register('forge-payment', array($this, 'apiAdapter'));
 
@@ -84,17 +85,17 @@ class ForgePayment extends Module {
     public function orders() {
         if (Auth::allowed("manage.forge-payment.orders.edit")) {
             $uri = Utils::getUriComponents();
-            if(count($uri) > 4 && $uri[4] == 'detail' && is_numeric($uri[5])) {
-                ModifyHandler::instance()->add('modify_module_settings_template_directory', function($args) {
-                    return CORE_TEMPLATE_DIR."views/parts/";
+            if (count($uri) > 4 && $uri[4] == 'detail' && is_numeric($uri[5])) {
+                ModifyHandler::instance()->add('modify_module_settings_template_directory', function ($args) {
+                    return CORE_TEMPLATE_DIR . "views/parts/";
                 });
 
-                ModifyHandler::instance()->add('modify_module_settings_template_name', function($args) {
+                ModifyHandler::instance()->add('modify_module_settings_template_name', function ($args) {
                     return "crud.modify";
                 });
 
                 $order = Payment::getOrder($uri[5]);
-                ModifyHandler::instance()->add('modify_module_settings_render_args', function() use(&$order) {
+                ModifyHandler::instance()->add('modify_module_settings_render_args', function () use (&$order) {
                     return [
                         'title' => i('Order Details', 'forge-payment'),
                         'message' => '',
@@ -122,7 +123,7 @@ class ForgePayment extends Module {
 
 
     public function ordersActions() {
-        if (! Auth::allowed("manage.forge-payment.orders.edit", true)) {
+        if (!Auth::allowed("manage.forge-payment.orders.edit", true)) {
             return;
         }
         $url = Utils::getUrl(
@@ -132,12 +133,12 @@ class ForgePayment extends Module {
                 'clear-drafts' => "true"
             ]
         );
-        return '<a class="ajax btn btn-primary btn-xs" href="'.$url.'">'.i('Clear drafts', 'forge-events').'</a>';
+        return '<a class="ajax btn btn-primary btn-xs" href="' . $url . '">' . i('Clear drafts', 'forge-events') . '</a>';
     }
 
 
     private function settings() {
-        if (! Auth::allowed("manage.forge-payment.orders.edit", true)) {
+        if (!Auth::allowed("manage.forge-payment.orders.edit", true)) {
             return;
         }
 
@@ -147,57 +148,77 @@ class ForgePayment extends Module {
         $allowTransaction = 'forge-payment-transaction-allowed';
         $this->settings->registerField(
             Fields::checkbox(array(
-            'key' => $allowTransaction,
-            'label' => i('Allow Transaction', 'forge-payment'),
-            'hint' => i('Check if it is allowed to pay with transaction.', 'forge-payment')
-        ), Settings::get($allowTransaction)), $allowTransaction, 'right', 'forge-payment');
+                'key' => $allowTransaction,
+                'label' => i('Allow Transaction', 'forge-payment'),
+                'hint' => i('Check if it is allowed to pay with transaction.', 'forge-payment')
+            ), Settings::get($allowTransaction)),
+            $allowTransaction,
+            'right',
+            'forge-payment'
+        );
 
-        if(Settings::get($allowTransaction)) {
+        if (Settings::get($allowTransaction)) {
             /*
              * TRANSACTION
              */
-            $transMailKey = Localization::getCurrentLanguage().'_forge-payment-transaction-email';
+            $transMailKey = Localization::getCurrentLanguage() . '_forge-payment-transaction-email';
             $this->settings->registerField(
                 Fields::textarea(array(
-                'key' => $transMailKey,
-                'label' => i('Transaction E-Mail for a Open Order', 'forge-payment'),
-                'hint' => i('Use the following variables: {user} {total} {orderid}, which get replaced by actual values.', 'forge-payment')
-            ), Settings::get($transMailKey)), $transMailKey, 'right', 'forge-payment');
+                    'key' => $transMailKey,
+                    'label' => i('Transaction E-Mail for a Open Order', 'forge-payment'),
+                    'hint' => i('Use the following variables: {user} {total} {orderid}, which get replaced by actual values.', 'forge-payment')
+                ), Settings::get($transMailKey)),
+                $transMailKey,
+                'right',
+                'forge-payment'
+            );
 
             /*
              * ORDER ACCEPTED
              */
-            $transMailKey = Localization::getCurrentLanguage().'_forge-payment-accepted-email';
+            $transMailKey = Localization::getCurrentLanguage() . '_forge-payment-accepted-email';
             $this->settings->registerField(
                 Fields::textarea(array(
-                'key' => $transMailKey,
-                'label' => i('Transaction E-Mail for a Accepted Order by the Admin', 'forge-payment'),
-                'hint' => i('Use the following variables: {user} {total} {orderid} {items}, which get replaced by actual values.', 'forge-payment')
-            ), Settings::get($transMailKey)), $transMailKey, 'right', 'forge-payment');
+                    'key' => $transMailKey,
+                    'label' => i('Transaction E-Mail for a Accepted Order by the Admin', 'forge-payment'),
+                    'hint' => i('Use the following variables: {user} {total} {orderid} {items}, which get replaced by actual values.', 'forge-payment')
+                ), Settings::get($transMailKey)),
+                $transMailKey,
+                'right',
+                'forge-payment'
+            );
         }
 
 
         /*
          * USER EMAIL FOR SHOP ORDER
          */
-        $orderUserMailKey = Localization::getCurrentLanguage().'_forge-payment-order-user-email';
+        $orderUserMailKey = Localization::getCurrentLanguage() . '_forge-payment-order-user-email';
         $this->settings->registerField(
             Fields::textarea(array(
-            'key' => $orderUserMailKey,
-            'label' => i('User E-Mail for delivery order.', 'forge-payment'),
-            'hint' => i('Use the following variables: {user} {total} {orderid} {items}, which get replaced by actual values.', 'forge-payment')
-        ), Settings::get($orderUserMailKey)), $orderUserMailKey, 'right', 'forge-payment');
+                'key' => $orderUserMailKey,
+                'label' => i('User E-Mail for delivery order.', 'forge-payment'),
+                'hint' => i('Use the following variables: {user} {total} {orderid} {items}, which get replaced by actual values.', 'forge-payment')
+            ), Settings::get($orderUserMailKey)),
+            $orderUserMailKey,
+            'right',
+            'forge-payment'
+        );
 
         /*
          * ADMIN EMAIL FOR SHOP ORDER
          */
-        $orderAdminMailKey = Localization::getCurrentLanguage().'_forge-payment-order-admin-email';
+        $orderAdminMailKey = Localization::getCurrentLanguage() . '_forge-payment-order-admin-email';
         $this->settings->registerField(
             Fields::textarea(array(
-            'key' => $orderAdminMailKey,
-            'label' => i('Administrator E-Mail for delivery order.', 'forge-payment'),
-            'hint' => i('Use the following variables: {user} {total} {orderid} {items}, which get replaced by actual values.', 'forge-payment')
-        ), Settings::get($orderAdminMailKey)), $orderAdminMailKey, 'right', 'forge-payment');
+                'key' => $orderAdminMailKey,
+                'label' => i('Administrator E-Mail for delivery order.', 'forge-payment'),
+                'hint' => i('Use the following variables: {user} {total} {orderid} {items}, which get replaced by actual values.', 'forge-payment')
+            ), Settings::get($orderAdminMailKey)),
+            $orderAdminMailKey,
+            'right',
+            'forge-payment'
+        );
 
         /*
          * ADMIN EMAIL ADDRESS FOR SHOP ORDERS
@@ -205,10 +226,14 @@ class ForgePayment extends Module {
         $orderAdminAddressKey = 'forge-payment-order-admin-address';
         $this->settings->registerField(
             Fields::text(array(
-            'key' => $orderAdminAddressKey,
-            'label' => i('Administrator E-Mail for delivery order.', 'forge-payment'),
-            'hint' => i('Use the following variables: {user} {total} {orderid} {items}, which get replaced by actual values.', 'forge-payment')
-        ), Settings::get($orderAdminAddressKey)), $orderAdminAddressKey, 'right', 'forge-payment');
+                'key' => $orderAdminAddressKey,
+                'label' => i('Administrator E-Mail for delivery order.', 'forge-payment'),
+                'hint' => i('Use the following variables: {user} {total} {orderid} {items}, which get replaced by actual values.', 'forge-payment')
+            ), Settings::get($orderAdminAddressKey)),
+            $orderAdminAddressKey,
+            'right',
+            'forge-payment'
+        );
 
         /*
          * Delivery Fee
@@ -216,24 +241,32 @@ class ForgePayment extends Module {
         $feeKey = 'forge-fixed-fee-delivery';
         $this->settings->registerField(
             Fields::text(array(
-            'key' => $feeKey,
-            'label' => i('Fixed fee for delivery', 'forge-payment'),
-            'hint' => i('Leave this empty if not fee should be added.', 'forge-payment')
-        ), Settings::get($feeKey)), $feeKey, 'right', 'forge-payment');
+                'key' => $feeKey,
+                'label' => i('Fixed fee for delivery', 'forge-payment'),
+                'hint' => i('Leave this empty if not fee should be added.', 'forge-payment')
+            ), Settings::get($feeKey)),
+            $feeKey,
+            'right',
+            'forge-payment'
+        );
 
 
         $defaultCurrencyKey = 'forge-payment-default-currency';
         $this->settings->registerField(
             Fields::select(array(
-            'key' => $defaultCurrencyKey,
-            'label' => i('Default Currency', 'forge-payment'),
-            'hint' => '',
-            'values' => [
-                'CHF' => i('CHF / Swiss francs', 'forge-payment'),
-                'EUR' => i('EUR / Euro', 'forge-payment'),
-                'USD' => i('USD / US Dollar', 'forge-payment'),
-            ]
-        ), Settings::get($defaultCurrencyKey)), $defaultCurrencyKey, 'right', 'forge-payment');
+                'key' => $defaultCurrencyKey,
+                'label' => i('Default Currency', 'forge-payment'),
+                'hint' => '',
+                'values' => [
+                    'CHF' => i('CHF / Swiss francs', 'forge-payment'),
+                    'EUR' => i('EUR / Euro', 'forge-payment'),
+                    'USD' => i('USD / US Dollar', 'forge-payment'),
+                ]
+            ), Settings::get($defaultCurrencyKey)),
+            $defaultCurrencyKey,
+            'right',
+            'forge-payment'
+        );
     }
 
     public function apiAdapter($data) {
@@ -242,21 +275,21 @@ class ForgePayment extends Module {
             $modal->params($_POST);
             return json_encode(array("content" => $modal->render()));
         }
-        if($data == 'delivery-check') {
+        if ($data == 'delivery-check') {
             return PaymentModal::handleDeliveryCheck($data);
         }
-        if($data == 'submit-delivery') {
-            if($_POST['curstep'] == 'address') {
-                return PaymentModal::handleAddressCheck();    
-            } elseif($_POST['curstep'] == 'delivery' ) {
+        if ($data == 'submit-delivery') {
+            if ($_POST['curstep'] == 'address') {
+                return PaymentModal::handleAddressCheck();
+            } elseif ($_POST['curstep'] == 'delivery') {
                 return PaymentModal::handleDeliveryTypeSubmit();
-            } elseif($_POST['curstep'] == 'payment') {
+            } elseif ($_POST['curstep'] == 'payment') {
                 return PaymentModal::handleDeliveryPaymentSubmit();
             }
             return;
         }
-        if($data['query'][0] == 'orders') {
-            if( ! Auth::allowed('manage.forge-payment', true)) {
+        if ($data['query'][0] == 'orders') {
+            if (!Auth::allowed('manage.forge-payment', true)) {
                 return '';
             }
             $oTable = new OrderTable();
@@ -288,5 +321,3 @@ class ForgePayment extends Module {
         Settings::set($this->name . ".installed", 1);
     }
 }
-
-?>
